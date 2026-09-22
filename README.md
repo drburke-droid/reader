@@ -8,10 +8,11 @@ A tap-to-read e-reader for a beginning reader. Plain HTML/CSS/JS — no build st
 - **Press and hold** a word → it's marked as a tough word and added to the word list.
 - At **20 words**, her spot in the story is saved as her **high score** and she goes to the Word List.
 - Word List: each word shown big. A **Hint** ladder walks the decoding script (first sound → check the vowel → cover the ending → try the other vowel sound). She reads it, taps *Hear it* to check, then marks ✓ / ✗. A miss brings the word back a few items later and again at the end; words she already knows are mixed in to keep success high. Clear the queue → back to chapter 1 to beat the high score.
-- Passed words go into a **word bank** and are re-checked in short **warm-ups** after 1, 3, 10 and 30 days. Four checks in a row = a word she "owns".
+- 🔥 **Warm-up lesson** (top bar, or the card on the chapter page once a day): a two-minute guided lesson on the four tricks the hints use. Find the vowels (tap them), vowels have two sounds (tap to hear), try it both ways (say *cā-mel* and *căm-el*, pick the real word), heart words, and cover-the-ending for long words. Words are shuffled each time.
+- Passed words go into a **word bank** and are re-checked in short **quick checks** after 1, 3, 10 and 30 days. Four checks in a row = a word she "owns".
 - **Timed read** (from the Grown-ups page): a parent starts the timer, taps words she misses while she reads a chapter aloud, and gets correct-words-per-minute with history per chapter. Misses can be added to the list.
 - Tapping **I finished!** on the last chapter counts as beating the story.
-- ⚙️ **Grown-ups** page: stats, current list, owned words, warm-up now, timed reads and norms, a "how to help when she's stuck" script, settings, saved lists, text export, restart / erase.
+- ⚙️ **Grown-ups** page: stats, current list, owned words, quick check now, warm-up lesson, timed reads and norms, a "how to help when she's stuck" script, settings, saved lists, text export, restart / erase.
 
 The design follows the reading-science evidence (see `CLAUDE.md` for the short version): decoding beats whole-word memorising, so every feature pushes her to look at every letter before she hears the word.
 

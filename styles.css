@@ -125,3 +125,47 @@ textarea{width:100%;font:inherit;font-size:.85rem;border-radius:12px;border:2px 
 .bigword.plain .gv{text-decoration:none}
 .bigword.plain .gm{border:0}
 .bigword.plain .gs{opacity:1;text-decoration:none}
+
+/* warm-up lesson */
+#lessonBtn{font-size:1.3rem}
+.steps{display:flex;gap:6px;margin-bottom:14px}
+.steps i{flex:1;height:8px;border-radius:999px;background:var(--line)}
+.steps i.done{background:var(--good)}.steps i.now{background:var(--gold)}
+.lesson h2{font-size:1.6rem;color:var(--ember);margin-bottom:6px}
+.lesson p{font-size:1.05rem;line-height:1.55}
+.lesson .eyebrow{font-family:Fredoka,sans-serif;font-weight:500;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem;color:var(--muted)}
+.lesson.intro{text-align:center}
+.lesson.intro .dragon{font-size:4rem;line-height:1}
+.tricks{display:inline-block;text-align:left;font-size:1.1rem;line-height:1.8;font-family:Fredoka,sans-serif;font-weight:500;margin:0 0 16px;padding-left:1.4em}
+.lesson-msg{background:var(--bg);border-radius:14px;padding:10px 14px}
+.tiles{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.tile{font-size:2.2rem;font-weight:700;min-width:60px;height:68px;padding:0 14px;border-radius:14px;background:var(--bg);border:3px solid var(--line);color:var(--ink);font-family:Andika,sans-serif}
+.tile.pick{border-color:var(--sky);background:var(--paper);transform:translateY(-3px)}
+.tile.ok{border-color:var(--good);background:var(--good);color:#fff}
+.tile.missed{border-color:var(--good);color:var(--good);animation:pop .5s}
+.tile.wrong{border-color:var(--bad);animation:shake .4s}
+.tiles.checked .tile{cursor:default}
+.lessonword{margin:8px auto;text-align:center;font-size:clamp(2rem,9vw,3.4rem)}
+.bigword.small{font-size:clamp(1.7rem,7vw,2.6rem);padding:14px 16px;min-width:0}
+.vtable{display:flex;flex-direction:column;gap:8px;margin:10px 0 14px}
+.vrow{display:grid;grid-template-columns:1.6em 1fr 1fr;gap:8px;align-items:center}
+.vrow>b{font-size:1.6rem;text-align:center;font-family:Andika,sans-serif}
+.vbtn{padding:8px 10px;font-family:Andika,sans-serif;font-weight:400;font-size:1rem}
+.vbtn .g{font-weight:700;font-size:1.2em;margin-right:.15em}
+.gv.short{position:relative;text-decoration:none}.gv.long{position:relative;text-decoration:none}
+.gv.short::after,.gv.long::after{position:absolute;left:50%;transform:translateX(-50%);top:-.55em;font-size:.8em;line-height:1;color:var(--ember)}
+.gv.short::after{content:"˘"}.gv.long::after{content:"¯"}
+.demo{white-space:nowrap;font-weight:700;padding-top:.5em;display:inline-block}
+.demo .c{padding:0 .05em}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.tcard{display:flex;flex-direction:column;align-items:center;gap:10px;background:var(--bg);border-radius:18px;padding:14px 10px;border:3px solid transparent}
+.tcard .bigword{background:var(--paper);padding-top:22px}
+.tcard.right{border-color:var(--good)}.tcard.notit{opacity:.45}
+.hearts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.heartdemo{cursor:pointer;text-align:center;padding-top:26px}
+@media (max-width:480px){.cards{grid-template-columns:1fr}.tile{font-size:1.8rem;min-width:50px;height:58px;padding:0 10px}}
+.tricks{display:table;margin:0 auto 18px}
+.vbtn{overflow:visible;padding-top:12px}
+.bigword{overflow:visible}
+.tcard .bigword,.heartdemo,.lessonword{padding-top:30px}
+.demo{padding-top:.7em}

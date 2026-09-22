@@ -17,7 +17,7 @@ const FRESH = () => ({
   bank: {},                                   // word → {w, stage, due, seen}  (spaced re-checks)
   fluency: {},                                // chapter → [{date, secs, words, misses, wcpm}]
   timed: null, lastTimed: null,               // timed read in progress / just finished
-  lastWarm: 0, opts: { delay: true, known: true }
+  lastWarm: 0, lessonStep: 0, lessons: 0, lastLesson: 0, opts: { delay: true, known: true }
 });
 let S = FRESH();
 function load(){ try{ const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(FRESH(), JSON.parse(raw)); S.opts = Object.assign({ delay: true, known: true }, S.opts || {}); }catch(e){} }
@@ -58,7 +58,7 @@ function updateTop(){
   else { pt.textContent = `${S.flagged.length} / ${MAX}`; pill.style.background = ""; pill.style.color = ""; }
   const pct = S.mode === "read" ? (WORDS.filter(w=>w.ch<S.chapter).length / TOTAL) * 100 : 100;
   document.getElementById("barFill").style.width = pct + "%";
-  document.getElementById("topTitle").textContent = S.mode==="read" ? STORY.title : S.mode==="review" ? (S.qkind === "warm" ? "Warm-up" : "Word List") : "Dragon Rider Reader";
+  document.getElementById("topTitle").textContent = S.mode==="read" ? STORY.title : S.mode==="review" ? (S.qkind === "warm" ? "Quick check" : "Word List") : S.mode === "lesson" ? "Warm-up" : "Dragon Rider Reader";
 }
 function render(){
   clearInterval(timerTick); clearTimeout(speakTimer);
@@ -67,6 +67,7 @@ function render(){
   else if (S.mode === "review") renderReview();
   else if (S.mode === "done") renderDone();
   else if (S.mode === "grownups") renderGrownups();
+  else if (S.mode === "lesson") renderLesson();
   scroll.scrollTop = 0;
 }
 
@@ -87,12 +88,13 @@ function renderRead(){
   const due = dueWords();
   const warm = (!timed && due.length && S.lastWarm !== today()) ? `
     <div class="card warm">
-      <div class="warmrow"><span class="flame">🔥</span><div><b>Warm-up first?</b><br><span class="hint" style="margin:0">${due.length} word${due.length>1?"s":""} from before. Still got ${due.length>1?"them":"it"}?</span></div></div>
+      <div class="warmrow"><span class="flame">🧠</span><div><b>Quick check?</b><br><span class="hint" style="margin:0">${due.length} word${due.length>1?"s":""} from before. Still got ${due.length>1?"them":"it"}?</span></div></div>
       <div class="row" style="justify-content:flex-start"><button class="btn small" id="warmGo">Let's check</button><button class="btn ghost small" id="warmSkip">Later</button></div>
     </div>` : "";
   const lt = S.lastTimed && S.lastTimed.ch === ci ? renderTimedResult(S.lastTimed) : "";
+  const lesson = (!timed && S.lastLesson !== today()) ? `<div class="card warm lessoncard"><div class="warmrow"><span class="flame">🔥</span><div><b>Warm up first?</b><br><span class="hint" style="margin:0">Four reading tricks in about two minutes.</span></div></div><div class="row" style="justify-content:flex-start"><button class="btn small" id="lessonGo">Let's go</button><button class="btn ghost small" id="lessonSkip">Not today</button></div></div>` : "";
   const strip = timed ? `<div class="strip"><span>⏱ <b id="clock">0:00</b> · reading with a grown-up · tap a word she misses</span><button class="btn small" id="stopTimed">Stop</button></div>` : "";
-  view.innerHTML = `${warm}${lt}
+  view.innerHTML = `${lesson}${warm}${lt}
     <div class="card chapter">
       ${strip}
       <div class="eyebrow">Chapter ${ci+1} of ${STORY.chapters.length}</div>
@@ -109,6 +111,8 @@ function renderRead(){
   if (n) n.onclick = () => { S.chapter++; save(); render(); };
   if (f) f.onclick = finishStory;
   const wg = document.getElementById("warmGo"); if (wg) wg.onclick = () => startWarmup();
+  const lg = document.getElementById("lessonGo"); if (lg) lg.onclick = startLesson;
+  const ls = document.getElementById("lessonSkip"); if (ls) ls.onclick = () => { S.lastLesson = today(); save(); render(); };
   const ws = document.getElementById("warmSkip"); if (ws) ws.onclick = () => { S.lastWarm = today(); save(); render(); };
   const st = document.getElementById("stopTimed"); if (st) st.onclick = stopTimed;
   const dm = document.getElementById("dismissTimed"); if (dm) dm.onclick = () => { S.lastTimed = null; save(); render(); };
@@ -233,7 +237,7 @@ function startReview(kind){
   S.qkind = kind; S.queue = kind === "warm" ? dueWords().slice(0, 8).map(b => ({ w: b.w, k: "warm" })) : buildQueue();
   S.qi = 0; S.attempts = 0; S.mode = "review"; save(); render();
 }
-function startWarmup(){ if (!dueWords().length){ toast("Nothing to warm up today"); return; } startReview("warm"); }
+function startWarmup(){ if (!dueWords().length){ toast("Nothing to check today"); return; } startReview("warm"); }
 
 let H = { step: 0, heard: false, flip: false, key: null };
 const HINTS = [
@@ -316,7 +320,7 @@ function answer(right){
   save(); render();
 }
 function finishQueue(){
-  if (S.qkind === "warm"){ S.lastWarm = today(); S.queue = null; S.mode = "read"; save(); toast("Warm-up done. Nice work!"); render(); return; }
+  if (S.qkind === "warm"){ S.lastWarm = today(); S.queue = null; S.mode = "read"; save(); toast("Quick check done. Nice work!"); render(); return; }
   S.flagged.forEach(f => bankAdd(f.word, 1));
   archive(true); S.queue = null; S.mode = "done"; save(); render();
 }
@@ -343,6 +347,143 @@ function renderDone(){
   document.getElementById("again").onclick = () => { S.mode = "read"; S.chapter = 0; save(); render(); };
 }
 
+
+/* ---------- WARM-UP LESSON (the four tricks) ---------- */
+const HUNT_WORDS = ["sunset","rabbit","napkin","basket","picnic","cactus","muffin","magnet","velvet","pumpkin","kitten","hidden"];
+const FLEX_WORDS = [
+  { w:"camel",  open:"kay mel",  closed:"cam el",   ans:"closed" },
+  { w:"tiger",  open:"tie gur",  closed:"tig ur",   ans:"open" },
+  { w:"robot",  open:"roe bot",  closed:"rob ot",   ans:"open" },
+  { w:"lemon",  open:"lee mon",  closed:"lem un",   ans:"closed" },
+  { w:"paper",  open:"pay per",  closed:"pap er",   ans:"open" },
+  { w:"seven",  open:"see ven",  closed:"sev en",   ans:"closed" },
+  { w:"music",  open:"mew zik",  closed:"muss ick", ans:"open" },
+  { w:"planet", open:"play net", closed:"plan et",  ans:"closed" },
+  { w:"wagon",  open:"way gon",  closed:"wag on",   ans:"closed" },
+  { w:"bacon",  open:"bay kun",  closed:"back on",  ans:"open" },
+  { w:"river",  open:"rye ver",  closed:"riv er",   ans:"closed" },
+  { w:"silent", open:"sigh lent",closed:"sill ent", ans:"open" }
+];
+const VOWELS = [
+  { v:"a", short:"apple", long:"cake" }, { v:"e", short:"egg", long:"me" }, { v:"i", short:"pig", long:"kite" },
+  { v:"o", short:"hot", long:"go" }, { v:"u", short:"cup", long:"music" }
+];
+const HEART_DEMO = ["said","was","of","they"];
+const COVER_WORDS = ["fantastic","lightning","umbrella","adventure","remember","suddenly"];
+const pick = (arr, n) => arr.slice().sort(() => Math.random() - .5).slice(0, n);
+let L = null;   // per-session lesson state (not persisted)
+function startLesson(){
+  L = { hunt: pick(HUNT_WORDS, 2), flex: pick(FLEX_WORDS, 3), cover: pick(COVER_WORDS, 1)[0], i: 0, picked: {}, checked: false, chose: null, shown: 1 };
+  S.lessonStep = 0; S.mode = "lesson"; save(); render();
+}
+function lessonNext(){ S.lessonStep++; L.i = 0; L.picked = {}; L.checked = false; L.chose = null; L.shown = 1; save(); render(); }
+function tileHTML(word, cls){
+  const mark = (g, k) => { const p = !!L.picked[k]; if (!L.checked) return p ? " pick" : ""; return g.v ? (p ? " ok" : " missed") : (p ? " wrong" : ""); };
+  return `<div class="tiles ${cls||""}">${PH.tokenize(word.toLowerCase()).map((g, k) => `<button class="tile${g.t.length>1 ? " team" : ""}${mark(g, k)}" data-k="${k}">${g.t}</button>`).join("")}</div>`;
+}
+function markedSplit(split, kind){
+  // "ca|mel" → chunks; first vowel letter of the first chunk gets a macron (open) or breve (closed)
+  return split.split("|").map((c, i) => { let done = false; return `<span class="c c${i%4+1}">` + [...c].map(ch => { if (i === 0 && !done && "aeiou".includes(ch)){ done = true; return `<span class="g gv ${kind}">${ch}</span>`; } return `<span class="g">${ch}</span>`; }).join("") + "</span>"; }).join("");
+}
+function renderLesson(){
+  if (!L){ L = { hunt: pick(HUNT_WORDS, 2), flex: pick(FLEX_WORDS, 3), cover: pick(COVER_WORDS, 1)[0], i: 0, picked: {}, checked: false, chose: null, shown: 1 }; }
+  const step = S.lessonStep, total = 6;
+  const bar = `<div class="steps">${Array.from({length: total}, (_, k) => `<i class="${k < step ? "done" : k === step ? "now" : ""}"></i>`).join("")}</div>`;
+  let body = "", after = () => {};
+  if (step === 0){
+    body = `<div class="lesson intro"><div class="dragon pop">🔥</div><h2>Warm-up</h2>
+      <p>Strong readers don't guess. They use four tricks. Let's practise them on a few words, then go read.</p>
+      <ol class="tricks"><li>Find the vowels</li><li>Vowels have two sounds</li><li>Try it both ways</li><li>Heart words</li></ol>
+      <button class="btn big" id="next">Let's go →</button></div>`;
+  }
+  else if (step === 1){
+    const word = L.hunt[L.i];
+    const toks = PH.tokenize(word);
+    const nv = toks.filter(g => g.v).length;
+    body = `<div class="lesson"><div class="eyebrow">Trick 1 of 4 · word ${L.i+1} of ${L.hunt.length}</div><h2>Find the vowels</h2>
+      <p>Every chunk has <b>one</b> vowel sound. The vowels are <b>a e i o u</b> (and sometimes y). Tap the vowels in this word.</p>
+      ${tileHTML(word, L.checked ? "checked" : "")}
+      ${L.checked ? `<p class="lesson-msg"><b>${nv} vowel${nv>1?"s":""}, so ${nv} chunk${nv>1?"s":""}.</b> Tap each chunk to hear it, then hear the whole word.</p>
+        <div class="bigword chunked lessonword" id="lessonword">${PH.html(word)}</div>
+        <div class="row"><button class="btn ghost small" id="hearWord">🔊 Whole word</button><button class="btn small" id="next">${L.i < L.hunt.length-1 ? "Next word →" : "Next trick →"}</button></div>`
+      : `<div class="row"><button class="btn small" id="check">Check</button></div>`}
+    </div>`;
+    after = () => {
+      document.querySelectorAll(".tile").forEach(t => t.onclick = () => { if (L.checked) return; const k = t.dataset.k; L.picked[k] = !L.picked[k]; t.classList.toggle("pick", L.picked[k]); });
+      const ck = document.getElementById("check"); if (ck) ck.onclick = () => {
+        L.checked = true; let missed = 0, wrong = 0;
+        document.querySelectorAll(".tile").forEach(t => { const g = toks[+t.dataset.k]; const p = !!L.picked[t.dataset.k]; if (g.v && p) t.classList.add("ok"); else if (g.v && !p){ t.classList.add("missed"); missed++; } else if (!g.v && p){ t.classList.add("wrong"); wrong++; } });
+        toast(!missed && !wrong ? "Yes! You found them all." : missed ? "Nearly. The green ones are the vowels." : "Close. Only the green ones are vowels.");
+        setTimeout(render, 900);
+      };
+      const lw = document.getElementById("lessonword"); if (lw) lw.onclick = e => { const c = e.target.closest(".c"); if (c) speak(c.textContent.replace(/[^A-Za-z]/g,""), .7); };
+      const hw = document.getElementById("hearWord"); if (hw) hw.onclick = () => speak(word);
+      const nx = document.getElementById("next"); if (nx) nx.onclick = () => { if (L.i < L.hunt.length-1){ L.i++; L.picked = {}; L.checked = false; render(); } else lessonNext(); };
+    };
+  }
+  else if (step === 2){
+    body = `<div class="lesson"><div class="eyebrow">Trick 2 of 4</div><h2>Vowels have two sounds</h2>
+      <p>Each vowel can say a <b>short</b> sound (˘) or its <b>own name</b> (¯). Tap to hear both.</p>
+      <div class="vtable">${VOWELS.map(v => `<div class="vrow"><b>${v.v}</b><button class="btn ghost small vbtn" data-say="${v.short}"><span class="g gv short">${v.v}</span> as in <i>${v.short}</i></button><button class="btn ghost small vbtn" data-say="${v.long}"><span class="g gv long">${v.v}</span> as in <i>${v.long}</i></button></div>`).join("")}</div>
+      <p>Here's the clue: if the chunk <b>ends with a consonant</b>, the vowel is usually short: <span class="demo">${markedSplit("rab|bit","short")}</span>. If the chunk <b>ends with the vowel</b>, it says its name: <span class="demo">${markedSplit("ti|ger","long")}</span>.</p>
+      <p class="hint">But English cheats sometimes, so there's one more trick.</p>
+      <div class="row"><button class="btn small" id="next">Next trick →</button></div></div>`;
+    after = () => { document.querySelectorAll(".vbtn").forEach(b => b.onclick = () => speak(b.dataset.say)); document.getElementById("next").onclick = lessonNext; };
+  }
+  else if (step === 3){
+    const f = L.flex[L.i];
+    const a = PH.chunkTexts(f.w).join("|"), b = PH.chunkTexts(f.w, { flip: true }).join("|");
+    const openSplit = f.ans === "open" ? (PH.analyze(f.w).alt && a.indexOf("|") < b.indexOf("|") ? b : a) : null;
+    // derive the two splits: open = vowel ends the first chunk, closed = consonant ends it
+    const splits = [a, b].sort((x, y) => x.indexOf("|") - y.indexOf("|"));
+    const open = splits[0], closed = splits[1];
+    const chosen = L.chose;
+    body = `<div class="lesson"><div class="eyebrow">Trick 3 of 4 · word ${L.i+1} of ${L.flex.length}</div><h2>Try it both ways</h2>
+      <p>Not sure which sound the vowel makes? <b>Say it both ways.</b> One of them will sound like a word you know.</p>
+      <div class="bigword lessonword plain">${f.w}</div>
+      <div class="cards">
+        <div class="tcard${chosen ? (f.ans === "open" ? " right" : " notit") : ""}"><div class="bigword chunked small">${markedSplit(open, "long")}</div><button class="btn ghost small say" data-say="${f.open}">🔊 Say it</button>${chosen ? "" : `<button class="btn small choose" data-k="open">That's a word!</button>`}</div>
+        <div class="tcard${chosen ? (f.ans === "closed" ? " right" : " notit") : ""}"><div class="bigword chunked small">${markedSplit(closed, "short")}</div><button class="btn ghost small say" data-say="${f.closed}">🔊 Say it</button>${chosen ? "" : `<button class="btn small choose" data-k="closed">That's a word!</button>`}</div>
+      </div>
+      ${chosen ? `<p class="lesson-msg">${chosen === f.ans ? "<b>Yes!</b>" : "<b>Not that one.</b>"} <i>${f.w}</i> is the ${f.ans === "open" ? "vowel-says-its-name" : "short-vowel"} one. If the first try isn't a real word, flip the vowel and try again.</p>
+        <div class="row"><button class="btn ghost small" id="hearWord">🔊 ${f.w}</button><button class="btn small" id="next">${L.i < L.flex.length-1 ? "Next word →" : "Next trick →"}</button></div>` : `<p class="hint">Tap both speakers, then pick the one that's a real word.</p>`}
+    </div>`;
+    after = () => {
+      document.querySelectorAll(".say").forEach(b => b.onclick = () => speak(b.dataset.say, .75));
+      document.querySelectorAll(".choose").forEach(b => b.onclick = () => { L.chose = b.dataset.k; render(); });
+      const hw = document.getElementById("hearWord"); if (hw) hw.onclick = () => speak(f.w);
+      const nx = document.getElementById("next"); if (nx) nx.onclick = () => { if (L.i < L.flex.length-1){ L.i++; L.chose = null; render(); } else lessonNext(); };
+    };
+  }
+  else if (step === 4){
+    body = `<div class="lesson"><div class="eyebrow">Trick 4 of 4</div><h2>Heart words</h2>
+      <p>A few words don't play fair. Sound out the fair parts, and learn the part with the <span style="color:var(--bad)">♥</span> by heart. Tap a word to hear it.</p>
+      <div class="hearts">${HEART_DEMO.map(w => `<div class="bigword chunked small heartdemo" data-w="${w}">${PH.html(w)}</div>`).join("")}</div>
+      <p><i>said</i>: the <b>s</b> and <b>d</b> are fair. The <b>ai</b> should say /ā/ like in <i>rain</i>, but here it says /e/. That's the bit to remember.</p>
+      <div class="row"><button class="btn small" id="next">One more →</button></div></div>`;
+    after = () => { document.querySelectorAll(".heartdemo").forEach(d => d.onclick = () => speak(d.dataset.w)); document.getElementById("next").onclick = lessonNext; };
+  }
+  else if (step === 5){
+    const w = L.cover, parts = PH.analyze(w).chunks, n = parts.length, shown = Math.min(L.shown, n);
+    const html = parts.map((c, k) => `<span class="c c${k%4+1}${k >= shown ? " mask" : ""}">${c.map(g => g.punct ? g.t : `<span class="g${g.v?" gv":""}${g.s?" gs":""}${g.h?" gh":""}">${g.t}</span>`).join("")}</span>`).join("");
+    body = `<div class="lesson"><div class="eyebrow">Long words</div><h2>Cover the ending</h2>
+      <p>Big words are just small chunks in a row. Read the first chunk, then uncover the next one and add it on.</p>
+      <div class="bigword chunked lessonword" id="lessonword">${html}</div>
+      <div class="row">${shown < n ? `<button class="btn small" id="uncover">Uncover the next chunk</button>` : `<button class="btn ghost small" id="hearWord">🔊 ${w}</button><button class="btn small" id="next">Finish →</button>`}</div>
+      <p class="hint">Tap a chunk to hear just that piece.</p></div>`;
+    after = () => {
+      const lw = document.getElementById("lessonword"); lw.onclick = e => { const c = e.target.closest(".c"); if (c && !c.classList.contains("mask")) speak(c.textContent.replace(/[^A-Za-z]/g,""), .7); };
+      const un = document.getElementById("uncover"); if (un) un.onclick = () => { L.shown++; render(); };
+      const hw = document.getElementById("hearWord"); if (hw) hw.onclick = () => speak(w);
+      const nx = document.getElementById("next"); if (nx) nx.onclick = () => { S.lessons = (S.lessons || 0) + 1; S.lastLesson = today(); S.lessonStep = 0; S.mode = "read"; save(); toast("Warmed up! Now go read."); render(); };
+    };
+  }
+  view.innerHTML = `<div class="card">${bar}${body}<div class="row" style="justify-content:flex-start;margin-top:14px"><button class="btn ghost small" id="quit">← Back to the story</button></div></div>`;
+  after();
+  const n0 = document.getElementById("next"); if (step === 0 && n0) n0.onclick = lessonNext;
+  document.getElementById("quit").onclick = () => { S.mode = "read"; save(); render(); };
+}
+
 /* ---------- GROWN-UPS ---------- */
 const NORMS = { 2: { fall: 50, winter: 84, spring: 100 }, 3: { fall: 83, winter: 97, spring: 112 } };   // Hasbrouck & Tindal 2017, 50th percentile
 function renderGrownups(){
@@ -356,19 +497,21 @@ function renderGrownups(){
   view.innerHTML = `
     <div class="card gu">
       <h2>Grown-ups</h2>
-      <p>How it works: a <b>tap</b> splits a word into chunks so she can try it; a second tap (or a couple of seconds) reads it aloud. A <b>press-and-hold</b> marks a tough word. At ${MAX} tough words her spot becomes her high score and she practises the list with hints, hears each word, then marks it herself. Missed words come back later in the same session instead of restarting the list. Words she passes get re-checked in short <b>warm-ups</b> after 1, 3, 10 and 30 days; four checks in a row and she "owns" the word.</p>
+      <p>How it works: a <b>tap</b> splits a word into chunks so she can try it; a second tap (or a couple of seconds) reads it aloud. A <b>press-and-hold</b> marks a tough word. At ${MAX} tough words her spot becomes her high score and she practises the list with hints, hears each word, then marks it herself. Missed words come back later in the same session instead of restarting the list. Words she passes get re-checked in short <b>quick checks</b> after 1, 3, 10 and 30 days; four checks in a row and she "owns" the word. The <b>warm-up lesson</b> (🔥) teaches the four tricks the hints use: find the vowels, vowels have two sounds, try it both ways, heart words. Run it before reading until the tricks are automatic.</p>
       <div class="stat">
         <div><b>${b ? (b.finished ? "Done!" : "Ch. " + (b.chapter+1)) : "—"}</b><span>High score${b ? " · " + b.pct + "% of story" : ""}</span></div>
         <div><b>${own.length}</b><span>Words owned</span></div>
         <div><b>${learn.length}</b><span>Being re-checked</span></div>
         <div><b>${S.history.filter(h=>h.passed).length}</b><span>Lists passed</span></div>
+        <div><b>${S.lessons || 0}</b><span>Warm-ups done</span></div>
       </div>
 
       <h3>Current list (${S.flagged.length}/${MAX})</h3>
       <div class="chips">${cur}</div>
       <div class="row" style="justify-content:flex-start;margin-top:10px">
         ${S.flagged.length ? `<button class="btn ghost small" id="reviewNow">Practise this list now</button><button class="btn ghost small" id="undoLast">Remove last word</button>` : ""}
-        <button class="btn ghost small" id="warmNow" ${due.length ? "" : "disabled"}>Warm-up now (${due.length} due)</button>
+        <button class="btn ghost small" id="warmNow" ${due.length ? "" : "disabled"}>Quick check now (${due.length} due)</button>
+        <button class="btn ghost small" id="lessonNow">🔥 Warm-up lesson</button>
       </div>
       ${repeat.length ? `<h3>Words that keep coming back</h3><div class="chips">${repeat.map(([w,n])=>`<span class="chip">${esc(w)} ×${n}</span>`).join("")}</div>` : ""}
       ${own.length ? `<h3>Words she owns</h3><div class="chips">${own.map(x=>`<span class="chip pass">${esc(x.w)}</span>`).join("")}</div>` : ""}
@@ -419,10 +562,12 @@ function renderGrownups(){
   const rn = document.getElementById("reviewNow"); if (rn) rn.onclick = () => { const last = S.flagged[S.flagged.length-1]; if (last.id >= 0) setHighScore(last.id, false); startReview("list"); };
   const ul = document.getElementById("undoLast"); if (ul) ul.onclick = () => { const f = S.flagged.pop(); if (f) delete S.flaggedIds[f.id]; save(); render(); };
   document.getElementById("warmNow").onclick = startWarmup;
+  document.getElementById("lessonNow").onclick = startLesson;
   document.getElementById("startTimed").onclick = () => startTimed(+document.getElementById("timedCh").value);
   document.getElementById("optDelay").onchange = e => { S.opts.delay = e.target.checked; save(); };
   document.getElementById("optKnown").onchange = e => { S.opts.known = e.target.checked; save(); };
 }
+document.getElementById("lessonBtn").onclick = () => { if (S.mode === "lesson"){ S.mode = "read"; save(); render(); } else startLesson(); };
 document.getElementById("guBtn").onclick = () => { if (S.mode === "grownups"){ S.mode = (S._before && S._before !== "grownups") ? S._before : "read"; } else { S._before = S.mode; S.mode = "grownups"; } save(); render(); };
 
 render();
