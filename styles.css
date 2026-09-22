@@ -169,3 +169,5 @@ textarea{width:100%;font:inherit;font-size:.85rem;border-radius:12px;border:2px 
 .bigword{overflow:visible}
 .tcard .bigword,.heartdemo,.lessonword{padding-top:30px}
 .demo{padding-top:.7em}
+.stickyrow{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.stickyrow b{font-size:1.05rem}

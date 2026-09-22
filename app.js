@@ -17,7 +17,8 @@ const FRESH = () => ({
   bank: {},                                   // word → {w, stage, due, seen}  (spaced re-checks)
   fluency: {},                                // chapter → [{date, secs, words, misses, wcpm}]
   timed: null, lastTimed: null,               // timed read in progress / just finished
-  lastWarm: 0, lessonStep: 0, lessons: 0, lastLesson: 0, opts: { delay: true, known: true }
+  lastWarm: 0, lessonStep: 0, lessons: 0, lastLesson: 0, opts: { delay: true, known: true },
+  tough: null, pressed: {}, sessMiss: {}                 // sticky-word tracking (see STICKY below)
 });
 let S = FRESH();
 function load(){ try{ const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(FRESH(), JSON.parse(raw)); S.opts = Object.assign({ delay: true, known: true }, S.opts || {}); }catch(e){} }
@@ -48,6 +49,38 @@ function bankHit(word){ const b = S.bank[bankKey(word)]; if (!b) return bankAdd(
 function bankMiss(word){ const k = bankKey(word); const b = S.bank[k] || { w: word, seen: 0 }; b.stage = 0; b.due = Date.now() + DAY; b.seen++; S.bank[k] = b; }
 function dueWords(){ const now = Date.now(); return Object.values(S.bank).filter(b => b.stage >= 1 && b.stage < GAPS.length && b.due <= now); }
 function mastered(){ return Object.values(S.bank).filter(b => b.stage >= 4); }
+
+/* ---------- STICKY WORDS ----------
+   A word turns sticky when it lands on STICKY_FLAGS different lists or is missed STICKY_MISSES times in practice.
+   Sticky words join every practice session. They are released only when she clears them in RELEASE_STREAK
+   sessions in a row AND has read past them RELEASE_SEEN times in the story without tapping or holding them. */
+const STICKY_FLAGS = 2, STICKY_MISSES = 2, RELEASE_STREAK = 2, RELEASE_SEEN = 3;
+function tough(word){ const k = bankKey(word); return S.tough[k] || (S.tough[k] = { w: word, flags: 0, misses: 0, streak: 0, seen: 0, sticky: false }); }
+function checkSticky(t){ if (!t.sticky && (t.flags >= STICKY_FLAGS || t.misses >= STICKY_MISSES)){ t.sticky = true; t.since = Date.now(); t.streak = 0; t.seen = 0; } }
+function toughFlag(word){ const t = tough(word); t.flags++; t.seen = 0; checkSticky(t); }
+function toughMiss(word){ const t = tough(word); t.misses++; t.streak = 0; t.seen = 0; checkSticky(t); S.sessMiss[bankKey(word)] = 1; }
+function toughPress(word){ const k = bankKey(word); S.pressed[k] = 1; const t = S.tough[k]; if (t && t.sticky) t.seen = 0; }
+function stickyWords(){ return Object.values(S.tough).filter(t => t.sticky); }
+function tryRelease(t){
+  if (t.sticky && t.streak >= RELEASE_STREAK && t.seen >= RELEASE_SEEN){
+    t.sticky = false; t.flags = 0; t.misses = 0; t.streak = 0; t.seen = 0; t.released = Date.now();
+    setTimeout(() => toast(`"${t.w}" isn't sticky any more. You own it!`), 700);
+  }
+}
+/* she read past chapter ci: every sticky word in it that she didn't press counts as seen */
+function leaveChapter(ci){
+  const counts = {}; WORDS.filter(w => w.ch === ci).forEach(w => { const k = clean(w.text).toLowerCase(); if (k) counts[k] = (counts[k]||0) + 1; });
+  stickyWords().forEach(t => { const k = bankKey(t.w); if (!counts[k]) return; if (S.pressed[k]){ t.seen = 0; return; } t.seen += Math.min(2, counts[k]); tryRelease(t); });
+  S.pressed = {};
+}
+/* end of a practice session: sticky words she cleared without a miss extend their streak */
+function settleSession(){
+  const inSession = new Set((S.queue || []).map(q => bankKey(q.w)));
+  stickyWords().forEach(t => { const k = bankKey(t.w); if (!inSession.has(k)) return; if (S.sessMiss[k]) t.streak = 0; else { t.streak++; tryRelease(t); } });
+  S.sessMiss = {};
+}
+if (!S.tough){ S.tough = {}; S.history.forEach(h => h.words.forEach(w => tough(w).flags++)); S.flagged.forEach(f => tough(f.word).flags++); Object.values(S.tough).forEach(checkSticky); save(); }
+
 function learning(){ return Object.values(S.bank).filter(b => b.stage >= 1 && b.stage < 4); }
 
 /* ---------- RENDER ---------- */
@@ -107,9 +140,9 @@ function renderRead(){
       <p class="hint">${timed ? "<b>Timed read.</b> Tap any word she gets wrong. Tap Stop when she reaches the end." : `<b>Tap</b> a word to break it into pieces. Try to read it, then tap again to hear it. <b>Press and hold</b> a tricky word to add it to your list. ${bestLine}`}</p>
     </div>`;
   const p = document.getElementById("prev"), n = document.getElementById("next"), f = document.getElementById("finish");
-  if (p) p.onclick = () => { S.chapter--; save(); render(); };
-  if (n) n.onclick = () => { S.chapter++; save(); render(); };
-  if (f) f.onclick = finishStory;
+  if (p) p.onclick = () => { S.pressed = {}; S.chapter--; save(); render(); };
+  if (n) n.onclick = () => { leaveChapter(ci); S.chapter++; save(); render(); };
+  if (f) f.onclick = () => { leaveChapter(ci); finishStory(); };
   const wg = document.getElementById("warmGo"); if (wg) wg.onclick = () => startWarmup();
   const lg = document.getElementById("lessonGo"); if (lg) lg.onclick = startLesson;
   const ls = document.getElementById("lessonSkip"); if (ls) ls.onclick = () => { S.lastLesson = today(); save(); render(); };
@@ -152,6 +185,7 @@ function chunkWord(el){
     clearTimeout(speakTimer); el.classList.add("spoken"); speak(word); return;
   }
   unchunkAll();
+  toughPress(word);
   el.classList.add("chunked"); el.innerHTML = chunkHTML(w.text);
   if (S.opts.delay){ speakTimer = setTimeout(() => { if (el.classList.contains("chunked")){ el.classList.add("spoken"); speak(word); } }, AUDIO_DELAY); }
   else { el.classList.add("spoken"); speak(word); }
@@ -161,6 +195,7 @@ function flagWord(el){
   if (!word || S.flaggedIds[w.id]) return;
   if (S.flagged.some(f => f.word.toLowerCase() === word.toLowerCase())){ S.flaggedIds[w.id] = 1; el.classList.add("flag"); save(); toast("Already on your list"); return; }
   S.flaggedIds[w.id] = 1; S.flagged.push({ id: w.id, word });
+  toughFlag(word); toughPress(word);
   el.classList.add("flag"); el.classList.remove("chunked","spoken"); el.textContent = w.text;
   try{ navigator.vibrate && navigator.vibrate(40); }catch(e){}
   save(); updateTop();
@@ -228,14 +263,16 @@ function buildQueue(){
     known = Object.values(S.bank).filter(b => b.stage >= 1 && !fl.has(bankKey(b.w)))
       .sort(() => Math.random() - .5).slice(0, Math.min(10, Math.ceil(news.length / 2))).map(b => ({ w: b.w, k: "known" }));
   }
-  const q = []; let ki = 0;
-  news.forEach((n, i) => { q.push(n); if (ki < known.length && i % 2 === 1) q.push(known[ki++]); });
-  while (ki < known.length) q.push(known[ki++]);
+  const fl = new Set(S.flagged.map(f => bankKey(f.word)));
+  const sticky = stickyWords().filter(t => !fl.has(bankKey(t.w))).map(t => ({ w: t.w, k: "sticky" }));
+  const q = []; let ki = 0, si = 0;
+  news.forEach((n, i) => { q.push(n); if (ki < known.length && i % 2 === 1) q.push(known[ki++]); if (si < sticky.length && i % 3 === 2) q.push(sticky[si++]); });
+  while (ki < known.length || si < sticky.length){ if (si < sticky.length) q.push(sticky[si++]); if (ki < known.length) q.push(known[ki++]); }
   return q;
 }
 function startReview(kind){
   S.qkind = kind; S.queue = kind === "warm" ? dueWords().slice(0, 8).map(b => ({ w: b.w, k: "warm" })) : buildQueue();
-  S.qi = 0; S.attempts = 0; S.mode = "review"; save(); render();
+  S.qi = 0; S.attempts = 0; S.sessMiss = {}; S.mode = "review"; save(); render();
 }
 function startWarmup(){ if (!dueWords().length){ toast("Nothing to check today"); return; } startReview("warm"); }
 
@@ -253,7 +290,7 @@ function renderReview(){
   if (H.key !== i + item.w){ H = { step: 0, heard: false, flip: false, key: i + item.w }; }
   const heart = PH.isHeart(item.w), alt = PH.analyze(item.w).alt;
   const dots = q.map((x, k) => `<i class="${k<i?"done":k===i?"now":""}${x.k!=="new"?" known":""}"></i>`).join("");
-  const kindLine = item.k === "known" ? "One you already know." : item.k === "warm" ? "From a while ago. Still got it?" : "";
+  const kindLine = item.k === "known" ? "One you already know." : item.k === "warm" ? "From a while ago. Still got it?" : item.k === "sticky" ? "A sticky word. You've been working on this one." : "";
   const hint = HINTS[H.step];
   let word;
   if (H.step === 0) word = esc(item.w);
@@ -302,7 +339,7 @@ function answer(right){
     if (item.k === "warm" || item.k === "known") bankHit(item.w);
     S.qi++;
   } else {
-    S.attempts++;
+    S.attempts++; toughMiss(item.w);
     if (item.k === "warm" || item.k === "known"){
       bankMiss(item.w);
       if (item.k === "warm" && S.flagged.length < MAX && !S.flagged.some(f => f.word.toLowerCase() === item.w.toLowerCase())){
@@ -320,6 +357,7 @@ function answer(right){
   save(); render();
 }
 function finishQueue(){
+  settleSession();
   if (S.qkind === "warm"){ S.lastWarm = today(); S.queue = null; S.mode = "read"; save(); toast("Quick check done. Nice work!"); render(); return; }
   S.flagged.forEach(f => bankAdd(f.word, 1));
   archive(true); S.queue = null; S.mode = "done"; save(); render();
@@ -327,7 +365,7 @@ function finishQueue(){
 function archive(passed){
   if (S.flagged.length) S.history.unshift({ date: new Date().toISOString(), words: S.flagged.map(f=>f.word), passed, attempts: S.attempts, chapter: S.best ? S.best.chapter : S.chapter });
   S.history = S.history.slice(0, 50);
-  S.flagged = []; S.flaggedIds = {}; S.reviewIdx = 0; S.attempts = 0; S.chapter = 0; S.queue = null;
+  S.flagged = []; S.flaggedIds = {}; S.reviewIdx = 0; S.attempts = 0; S.chapter = 0; S.queue = null; S.pressed = {};
 }
 function renderDone(){
   const b = S.best, own = mastered().length, learn = learning().length;
@@ -492,7 +530,7 @@ function renderGrownups(){
   const cur = S.flagged.length ? S.flagged.map(f=>`<span class="chip">${esc(f.word)}</span>`).join("") : "<span class='meta'>empty</span>";
   const all = {}; S.history.forEach(h => h.words.forEach(w => { const k = w.toLowerCase(); all[k] = (all[k]||0)+1; })); S.flagged.forEach(f => { const k=f.word.toLowerCase(); all[k]=(all[k]||0)+1; });
   const repeat = Object.entries(all).filter(([,n])=>n>1).sort((a,b)=>b[1]-a[1]);
-  const own = mastered(), learn = learning(), due = dueWords();
+  const own = mastered(), learn = learning(), due = dueWords(), sticky = stickyWords();
   const flu = Object.entries(S.fluency).filter(([,r]) => r.length).map(([ch, rs]) => `<li><div class="meta">Chapter ${+ch+1} · ${STORY.chapters[+ch].title}</div><div class="meta">${rs.slice().reverse().map(r => `${r.wcpm} wpm, ${r.misses.length} miss${r.misses.length===1?"":"es"} (${fmtDate(r.date)})`).join(" · ")}</div></li>`).join("");
   view.innerHTML = `
     <div class="card gu">
@@ -504,6 +542,7 @@ function renderGrownups(){
         <div><b>${learn.length}</b><span>Being re-checked</span></div>
         <div><b>${S.history.filter(h=>h.passed).length}</b><span>Lists passed</span></div>
         <div><b>${S.lessons || 0}</b><span>Warm-ups done</span></div>
+        <div><b>${sticky.length}</b><span>Sticky words</span></div>
       </div>
 
       <h3>Current list (${S.flagged.length}/${MAX})</h3>
@@ -515,6 +554,10 @@ function renderGrownups(){
       </div>
       ${repeat.length ? `<h3>Words that keep coming back</h3><div class="chips">${repeat.map(([w,n])=>`<span class="chip">${esc(w)} ×${n}</span>`).join("")}</div>` : ""}
       ${own.length ? `<h3>Words she owns</h3><div class="chips">${own.map(x=>`<span class="chip pass">${esc(x.w)}</span>`).join("")}</div>` : ""}
+
+      <h3>Sticky words (${sticky.length})</h3>
+      <p>A word turns sticky when it lands on her list twice or she misses it twice in practice. Sticky words join every practice session until she clears them in ${RELEASE_STREAK} sessions in a row <i>and</i> reads past them ${RELEASE_SEEN} times in the story without tapping or holding them.</p>
+      ${sticky.length ? `<ul class="list">${sticky.map(t => `<li class="stickyrow"><div><b>${esc(t.w)}</b><div class="meta">on ${t.flags} list${t.flags===1?"":"s"} · ${t.misses} miss${t.misses===1?"":"es"} · clean sessions ${t.streak}/${RELEASE_STREAK} · read past ${t.seen}/${RELEASE_SEEN}</div></div><button class="btn ghost small letgo" data-w="${esc(t.w)}">Let it go</button></li>`).join("")}</ul>` : `<p class="meta">None right now.</p>`}
 
       <h3>Fluency check (timed read)</h3>
       <p>Sit with her, start the timer, and tap each word she misses while she reads the chapter aloud. Stop at the end. Re-read the same chapter up to three times over a few days, then move on; progress on a <i>new</i> chapter is the real test. Typical scores for a child who is on track: grade 2 about ${NORMS[2].fall} words per minute in the fall and ${NORMS[2].spring} by spring; grade 3 about ${NORMS[3].fall} to ${NORMS[3].spring}.</p>
@@ -553,6 +596,7 @@ function renderGrownups(){
   const lines = [`${STORY.title} — word lists`, b ? `High score: ${b.finished ? "finished" : "chapter " + (b.chapter+1) + " (" + b.pct + "%)"}` : "",
     S.flagged.length ? `Current list: ${S.flagged.map(f=>f.word).join(", ")}` : "",
     own.length ? `Owned: ${own.map(x=>x.w).join(", ")}` : "", learn.length ? `Being re-checked: ${learn.map(x=>x.w).join(", ")}` : "",
+    sticky.length ? `Sticky: ${sticky.map(t=>`${t.w} (${t.flags} lists, ${t.misses} misses)`).join(", ")}` : "",
     ...S.history.map(h => `${h.date.slice(0,10)} (${h.passed?"passed":"open"}): ${h.words.join(", ")}`),
     ...Object.entries(S.fluency).flatMap(([ch, rs]) => rs.map(r => `Timed read ch.${+ch+1} ${r.date.slice(0,10)}: ${r.wcpm} wcpm, misses: ${r.misses.join(", ") || "none"}`))].filter(Boolean);
   document.getElementById("export").value = lines.join("\n");
@@ -562,6 +606,7 @@ function renderGrownups(){
   const rn = document.getElementById("reviewNow"); if (rn) rn.onclick = () => { const last = S.flagged[S.flagged.length-1]; if (last.id >= 0) setHighScore(last.id, false); startReview("list"); };
   const ul = document.getElementById("undoLast"); if (ul) ul.onclick = () => { const f = S.flagged.pop(); if (f) delete S.flaggedIds[f.id]; save(); render(); };
   document.getElementById("warmNow").onclick = startWarmup;
+  document.querySelectorAll(".letgo").forEach(b => b.onclick = () => { const t = S.tough[bankKey(b.dataset.w)]; if (t){ t.sticky = false; t.flags = 0; t.misses = 0; t.streak = 0; t.seen = 0; } save(); render(); });
   document.getElementById("lessonNow").onclick = startLesson;
   document.getElementById("startTimed").onclick = () => startTimed(+document.getElementById("timedCh").value);
   document.getElementById("optDelay").onchange = e => { S.opts.delay = e.target.checked; save(); };
