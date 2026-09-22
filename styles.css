@@ -87,3 +87,41 @@ textarea{width:100%;font:inherit;font-size:.85rem;border-radius:12px;border:2px 
 .toast.on{opacity:1}
 .celebrate{text-align:center;padding-block:20px}
 .celebrate .dragon{font-size:5rem;line-height:1}
+/* chunks: graphemes, vowels, silent e, hearts, affixes */
+.c{display:inline-block;padding:0 1px}
+.chunked .c+.c{margin-left:.12em}
+.g{display:inline-block}
+.gv{text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:4px;text-decoration-color:currentColor}
+.gs{opacity:.4;text-decoration:line-through;text-decoration-thickness:2px}
+.gh{position:relative}
+.gh::before{content:"♥";position:absolute;left:50%;top:-.95em;transform:translateX(-50%);font-size:.55em;line-height:1;color:var(--bad)}
+.text .gh::before{top:-.75em}
+.aff{opacity:.8;font-style:italic}
+.gm{border-bottom:2px dotted var(--muted);padding-bottom:1px}
+.gv.gm{border-bottom:0}
+.hl{background:var(--flag);color:var(--flag-ink);border-radius:6px;padding:0 .08em}
+.mask .g{color:transparent;background:var(--line);border-radius:4px}
+.mask .g::before{color:transparent}
+.bigword{padding-top:26px}
+.bigword.chunked{letter-spacing:.02em}
+.caption{max-width:26em}
+/* warm-up, timed read, results */
+.warm{margin-bottom:12px;background:var(--ember-soft);box-shadow:none}
+.warmrow{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+.flame{font-size:2rem;line-height:1}
+.strip{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--flag);color:var(--flag-ink);border-radius:14px;padding:8px 12px;margin-bottom:12px;font-size:.95rem;flex-wrap:wrap}
+.strip b{font-variant-numeric:tabular-nums}
+.text.timing .w{cursor:crosshair}
+.w.miss{background:var(--bad);color:#fff;text-decoration:line-through;font-weight:700}
+.result{margin-bottom:12px}
+.result h3{font-size:1.1rem;margin-bottom:6px;color:var(--ember)}
+.dots i.known{border-radius:3px}
+.gu ol{padding-left:1.3em;font-size:1rem;line-height:1.55}
+.gu ol li{margin-bottom:6px}
+.opt{display:flex;gap:10px;align-items:flex-start;font-size:1rem;line-height:1.45;margin:8px 0}
+.opt input{width:22px;height:22px;margin-top:2px;flex:none}
+.sel{font:inherit;font-size:.95rem;padding:8px 12px;border-radius:12px;border:2px solid var(--line);background:var(--paper);color:var(--ink);max-width:100%}
+.bigword.plain .c{color:inherit;margin:0}
+.bigword.plain .gv{text-decoration:none}
+.bigword.plain .gm{border:0}
+.bigword.plain .gs{opacity:1;text-decoration:none}
