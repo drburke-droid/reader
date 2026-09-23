@@ -298,7 +298,7 @@ function renderReview(){
   else word = PH.html(item.w, { flip: alt && H.flip });
   const caption = H.heard
     ? (heart ? `<b>Heart word.</b> The part with the ♥ doesn't play fair. Learn that bit by heart; the rest you can sound out.` : `Say it once more while you look at <b>every letter</b>.`)
-    : hint ? `<b>${hint.q}</b> ${hint.how}` : `Read it out loud. Then tap <b>Hear it</b> to check.`;
+    : hint ? `<b>${hint.q}</b> ${hint.how}` : `Read it out loud. Know it? Tap <b>✓</b>. Not sure? Try a <b>Hint</b> or <b>Hear it</b>.`;
   view.innerHTML = `
     <div class="card review">
       <div class="dots">${dots}</div>
@@ -311,10 +311,10 @@ function renderReview(){
         ${H.step ? `<button class="btn ghost small" id="split">${H.step >= 2 ? "Whole word" : "Break it up"}</button>` : ""}
         <button class="btn ${H.heard ? "ghost " : ""}small" id="hear">🔊 Hear it</button>
       </div>
-      ${H.heard ? `<div class="row">
+      <div class="row">
         <button class="btn bad big" id="wrong">✗ Not yet</button>
         <button class="btn good big" id="right">✓ Got it</button>
-      </div>` : ""}
+      </div>
       <p class="hint">${S.qkind === "warm" ? "A quick check of words you learned before. Then back to the story." : `Get every word right to finish the list. A miss just means that word comes back later.${S.attempts ? ` <b>Misses so far: ${S.attempts}.</b>` : ""}`}</p>
     </div>`;
   const bw = document.getElementById("bigword");
