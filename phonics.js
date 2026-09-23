@@ -10,7 +10,7 @@ window.PH = (function(){
   const isVY = c => !!c && (V.includes(c) || c === "y"); // vowel letter or y
 
   /* ---- graphemes (longest match first, with positional conditions) ---- */
-  const VOWEL_UNITS = ["augh","ough","eigh","igh","air","ear","ere","ire","ore","ure","are","our",
+  const VOWEL_UNITS = ["aigh","augh","ough","eigh","igh","air","ear","ere","ire","ore","ure","are","our",
     "ai","ay","ee","ea","oa","oe","ow","ou","oi","oy","oo","ue","ew","ui","ie","au","aw","ey","ei","ar","or","er","ir","ur"];
   const R_UNITS = new Set(["ar","or","er","ir","ur","air","ear","our"]);
   const RE_UNITS = new Set(["are","ere","ire","ore","ure"]);   // only at word end
@@ -20,7 +20,7 @@ window.PH = (function(){
   const NOT_START = new Set(["ck","tch","dge","ng","nk"]);
   const ONSETS = new Set(["bl","br","cl","cr","dr","fl","fr","gl","gr","pl","pr","sc","sk","sl","sm","sn","sp","st","sw","tr","tw","wr","kn","qu","ch","sh","th","wh","ph","gn","scr","spr","str","spl","squ","thr","shr","sch"]);
   const STAY_LEFT = new Set(["ck","tch","dge","x","ch","sh","th","ng","nk"]);   // never begin a syllable
-  const GH = new Set(["igh","augh","ough","eigh"]);
+  const GH = new Set(["igh","augh","ough","eigh","aigh"]);
 
   /* Tokenize a lowercase letters-only word into graphemes: [{t, v}] (v = vowel grapheme). */
   function tokenize(w){
@@ -69,7 +69,7 @@ window.PH = (function(){
    "sun|shine sun|light moon|light day|light fire|place foot|ball base|ball bas|ket|ball sea|side rain|bow snow|man snow|flake " +
    "air|plane air|port pan|cake cup|cake door|way hall|way high|way rail|road note|book back|pack back|yard up|stairs down|stairs " +
    "in|deed in|stead per|haps ex|cept be|yond an|oth|er with|out un|der|stand un|der|neath o|ver|head war|ri|or fam|i|ly " +
-   "beau|ti|ful an|i|mal gen|er|al en|e|my en|e|mies li|brar|y mys|ter|y mys|te|ri|ous ex|per|i|ment ma|chine strong|est long|est young|est strong|er long|er")
+   "beau|ti|ful an|i|mal gen|er|al en|e|my en|e|mies li|brar|y mys|ter|y mys|te|ri|ous ex|per|i|ment ma|chine strong|est long|est young|est strong|er long|er a|chieve a|chieve|ment fire|works fire|work laugh|ter au|di|ence dif|fer|ent dun|geon gor|geous mil|lion mil|lions bil|lion bil|lions re|bel|lion on|ion un|ion o|pin|ion skel|e|ton tel|e|vi|sion ri|dic|u|lous a|dor|a|ble")
    .split(" ").forEach(s => { SPLITS[s.replace(/\|/g,"")] = s.split("|"); });
 
   /* two-syllable words where the single middle consonant stays with the first (closed) syllable */
@@ -88,32 +88,32 @@ window.PH = (function(){
     what:"wh.a*.t", who:"wh*.o*", whose:"wh*.o*.s.e", come:"c.o*.m.e", comes:"c.o*.m.e.s", coming:"c.o*.m|ing", some:"s.o*.m.e",
     done:"d.o*.n.e", from:"f.r.o*.m", want:"w.a*.n.t", wants:"w.a*.n.t.s", wanted:"w.a*.n.t|ed", wash:"w.a*.sh", water:"w.a*|t.er",
     watch:"w.a*.tch", would:"w.oul*.d", could:"c.oul*.d", should:"sh.oul*.d", put:"p.u*.t", pull:"p.u*.ll", full:"f.u*.ll",
-    push:"p.u*.sh", again:"a|g.ai*.n", against:"a|g.ai*.n.s.t", any:"a*|n.y", many:"m.a*|n.y", been:"b.ee*.n", eight:"eigh*.t",
+    push:"p.u*.sh", again:"a|g.ai*.n", against:"a|g.ai*.n.s.t", any:"a*.n|y", many:"m.a*.n|y", been:"b.ee*.n", eight:"eigh*.t",
     laugh:"l.augh*", laughed:"l.augh*|ed", buy:"b.uy*", does:"d.oe*.s", friend:"f.r.ie*.n.d", friends:"f.r.ie*.n.d.s",
     people:"p.eo*|p.le", thought:"th.ough*.t", through:"th.r.ough*", though:"th.ough*", enough:"e|n.ough*", rough:"r.ough*",
     tough:"t.ough*", eye:"eye*", eyes:"eye*.s", gone:"g.o*.n.e", love:"l.o*.v.e", loved:"l.o*.v.e|d", above:"a|b.o*.v.e",
     give:"g.i.v.e*", live:"l.i.v.e*", have:"h.a.v.e*", move:"m.o*.v.e", prove:"p.r.o*.v.e", lose:"l.o*.s.e", other:"o*.th|er",
     mother:"m.o*.th|er", brother:"b.r.o*.th|er", another:"a|n.o*.th|er", nothing:"n.o*.th|ing", something:"s.o*.m.e|th.ing",
-    month:"m.o*.n.th", money:"m.o*|n.ey", monkey:"m.o*|n.k.ey", front:"f.r.o*.n.t", won:"w.o*.n", son:"s.o*.n", sure:"s*.ure",
-    sugar:"s*.u|g.ar", says:"s.ay*.s", heart:"h.ear*.t", great:"g.r.ea*.t", break:"b.r.ea*.k", head:"h.ea*.d", bread:"b.r.ea*.d",
+    month:"m.o*.n.th", money:"m.o*.n|ey", monkey:"m.o*.n|k.ey", front:"f.r.o*.n.t", won:"w.o*.n", son:"s.o*.n", sure:"s*.ure",
+    sugar:"s*.u.g|ar", says:"s.ay*.s", heart:"h.ear*.t", great:"g.r.ea*.t", break:"b.r.ea*.k", head:"h.ea*.d", bread:"b.r.ea*.d",
     dead:"d.ea*.d", read:"r.ea.d", instead:"in|s.t.ea*.d", weather:"w.ea*.th|er", feather:"f.ea*.th|er", leather:"l.ea*.th|er",
-    heavy:"h.ea*|v.y", ready:"r.ea*|d.y", already:"al|r.ea*|d.y", meant:"m.ea*.n.t", breath:"b.r.ea*.th", work:"w.or*.k",
+    heavy:"h.ea*.v|y", ready:"r.ea*.d|y", already:"al|r.ea*.d|y", meant:"m.ea*.n.t", breath:"b.r.ea*.th", work:"w.or*.k",
     word:"w.or*.d", words:"w.or*.d.s", world:"w.or*.l.d", worm:"w.or*.m", worth:"w.or*.th", war:"w.ar*", warm:"w.ar*.m",
-    wand:"w.a*.n.d", swan:"s.w.a*.n", wolf:"w.o*.l.f", woman:"w.o*|m.a.n", women:"w.o*|m.e*.n", shoe:"sh.oe*", shoes:"sh.oe*.s",
-    build:"b.ui*.l.d", built:"b.ui*.l.t", busy:"b.u*|s.y", pretty:"p.r.e*|tt.y", island:"i|s*.l.a.n.d", answer:"a.n|s.w*.er",
+    wand:"w.a*.n.d", swan:"s.w.a*.n", wolf:"w.o*.l.f", woman:"w.o*.m|a.n", women:"w.o*.m|e*.n", shoe:"sh.oe*", shoes:"sh.oe*.s",
+    build:"b.ui*.l.d", built:"b.ui*.l.t", busy:"b.u*.s|y", pretty:"p.r.e*|tt.y", island:"i|s*.l.a.n.d", answer:"a.n|s.w*.er",
     sword:"s.w*.or.d", listen:"l.i.s|t*.e.n", often:"o.f|t*.e.n", castle:"c.a.s|t*.le", whistle:"wh.i.s|t*.le", half:"h.a*.l*.f",
     calf:"c.a*.l*.f", walk:"w.a*.l*.k", talk:"t.a*.l*.k", chalk:"ch.a*.l*.k", climb:"c.l.i*.mb", child:"ch.i*.l.d", find:"f.i*.n.d",
     kind:"k.i*.n.d", mind:"m.i*.n.d", behind:"be|h.i*.n.d", wild:"w.i*.l.d", old:"o*.l.d", cold:"c.o*.l.d", told:"t.o*.l.d",
     hold:"h.o*.l.d", gold:"g.o*.l.d", most:"m.o*.s.t", both:"b.o*.th", only:"o*.n|l.y", father:"f.a*.th|er", school:"s.ch*.oo.l",
     ghost:"gh*.o*.s.t", guess:"gu*.e.ss", guard:"gu*.ar.d", tongue:"t.o*.ngue*", young:"y.ou*.ng", touch:"t.ou*.ch",
-    cousin:"c.ou*|s.i.n", country:"c.ou*.n|t.r.y", double:"d.ou*|b.le", trouble:"t.r.ou*|b.le", couple:"c.ou*|p.le",
+    cousin:"c.ou*.s|i.n", country:"c.ou*.n|t.r.y", double:"d.ou*|b.le", trouble:"t.r.ou*|b.le", couple:"c.ou*|p.le",
     blood:"b.l.oo*.d", flood:"f.l.oo*.d", door:"d.oor*", floor:"f.l.oor*", poor:"p.oor*", heard:"h.ear*.d", learn:"l.ear*.n",
     earth:"ear*.th", early:"ear*|l.y", search:"s.ear*.ch", bear:"b.ear*", wear:"w.ear*", pear:"p.ear*", sew:"s.ew*",
     minute:"m.i.n|u*.t.e", iron:"i*|r.o.n", stomach:"s.t.o.m|a.ch*", machine:"m.a|ch*.i.n.e", ocean:"o|c*.ea*.n",
     special:"s.p.e|c*.i.a.l", ache:"a.ch*.e", chorus:"ch*.o|r.u.s", character:"ch*.a.r|ac|t.er", echo:"e.ch*|o",
     because:"be|c.au.s.e", very:"v.e|r.y", where:"wh.ere*", here:"h.ere", there:"th.ere*", none:"n.o*.n.e",
-    dove:"d.o*.v.e", glove:"g.l.o*.v.e", shove:"sh.o*.v.e", above:"a|b.o*.v.e", oven:"o*|v.e.n", among:"a|m.o*.ng",
-    become:"be|c.o*.m.e", welcome:"w.e.l|c.o*.m.e", honey:"h.o*|n.ey", onion:"o*|n.i.o.n", cover:"c.o*|v.er", dozen:"d.o*|z.e.n",
+    dove:"d.o*.v.e", glove:"g.l.o*.v.e", shove:"sh.o*.v.e", above:"a|b.o*.v.e", oven:"o*.v|e.n", among:"a|m.o*.ng",
+    become:"be|c.o*.m.e", welcome:"w.e.l|c.o*.m.e", honey:"h.o*.n|ey", onion:"o*.n|i.o.n", cover:"c.o*.v|er", dozen:"d.o*.z|e.n",
     tomb:"t.o*.mb", womb:"w.o*.mb", comb:"c.o*.mb", brought:"b.r.ough*.t", bought:"b.ough*.t", fought:"f.ough*.t",
     ought:"ough*.t", caught:"c.augh*.t", taught:"t.augh*.t", daughter:"d.augh*|t.er", straight:"s.t.r.aigh*.t",
     height:"h.eigh*.t", weight:"w.eigh*.t", neighbor:"n.eigh*|b.or", neighbour:"n.eigh*|b.our", key:"k.ey", they:"th.ey*",

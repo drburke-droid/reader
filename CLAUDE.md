@@ -4,7 +4,7 @@
 E-reader web app for an 8-year-old who is learning to read. Built by her dad. Keep everything **kid-first**: big type, big touch targets, forgiving interactions, encouraging copy, nothing that requires typing.
 
 ## Stack & constraints
-- Static site: `index.html` + `styles.css` + `phonics.js` + `app.js` + `stories/*.js`. Bump the `?v=` query on the script/style tags in `index.html` when shipping so GitHub Pages caches refresh (currently v=7). **No build step, no framework, no npm.** It must keep working by opening `index.html` or from GitHub Pages at a sub-path (use relative URLs only).
+- Static site: `index.html` + `styles.css` + `phonics.js` + `app.js` + `stories/*.js` (each story file pushes onto `window.STORIES`; add a `<script>` tag in `index.html` for a new one). Bump the `?v=` query on the script/style tags in `index.html` when shipping so GitHub Pages caches refresh (currently v=8). **No build step, no framework, no npm.** It must keep working by opening `index.html` or from GitHub Pages at a sub-path (use relative URLs only).
 - Fonts: Andika (body — designed for beginning readers) and Fredoka (headings) from Google Fonts, with system fallbacks.
 - Persistence: `localStorage` under key `dragonReader.v2` (see `S` in `app.js`). Every read/write is wrapped in try/catch. If the saved shape changes incompatibly, bump the key version rather than migrating.
 - Theming: all colours are CSS variables on `:root`, redefined for dark mode. Never hard-code a colour in a component rule.
@@ -45,7 +45,7 @@ She has a strong memory and was memorising whole words. The evidence (Ehri's ort
 - `startLesson/renderLesson/lessonNext/tileHTML/markedSplit` — warm-up lesson. `markedSplit("ca|mel","long")` puts a macron/breve over the first vowel (`.gv.long` / `.gv.short`).
 
 ## Story format
-`stories/<name>.js` sets `window.STORY = { title, chapters: [{ title, text }] }`. Paragraphs separated by blank lines. Target reading level: roughly grade 2–3 with some harder words on purpose (names, multi-syllable words) so there is something to flag.
+`stories/<name>.js` does `window.STORIES = window.STORIES || []; window.STORIES.push({ id, title, blurb, level, chapters: [{ title, text }] })`. Paragraphs separated by blank lines. `S.story` is the current id; `switchStory(id)` stashes `{chapter, best, fluency}` in `S.ps[oldId]` and loads the new story's. Word list, bank, sticky words and lesson stats are shared across stories. `flaggedIds` keys are `"story:id"` (`fk()`), and flagged entries carry `story`. The 📚 button opens the library (`S.mode = "library"`). Keep retellings original prose (no quoted text from the books), roughly 150–300 words per chapter, and end every chapter on a hook. Target reading level: roughly grade 2–3 with some harder words on purpose (names, multi-syllable words) so there is something to flag.
 
 ## Roadmap ideas
 Story picker · per-story high scores · cross-device sync · grow `SPLITS`/`CLOSED_FIRST` from her actual misses · word-box (Elkonin) view for short words · mispronunciation-correction game ("I say it wrong, you fix it") · parent-adjustable `MAX` and new-words-per-session cap.

@@ -1,4 +1,5 @@
-const STORY = window.STORY;
+const STORIES = window.STORIES;
+let STORY = STORIES[0];
 const PH = window.PH;
 
 /* ---------- STATE ---------- */
@@ -8,7 +9,8 @@ const DAY = 864e5;
 const GAPS = [1, 3, 10, 30, 90];              // days between spaced checks, per stage (stage 4+ = mastered)
 
 const FRESH = () => ({
-  chapter: 0, flagged: [], flaggedIds: {},   // flagged: [{id, word}]
+  story: STORIES[0].id, ps: {},               // current story id; saved {chapter, best, fluency} for the other stories
+  chapter: 0, flagged: [], flaggedIds: {},   // flagged: [{id, word, story}]; flaggedIds keyed "story:id"
   best: null,                                 // {id, chapter, pct, date, finished}
   history: [], mode: "read",                  // read | review | done | grownups
   reviewIdx: 0, attempts: 0,
@@ -25,10 +27,26 @@ function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} 
 load();
 if (S.mode === "review" && !S.queue) S.mode = "read";   // older saved state
 
-/* word index across the whole story */
+/* word index across the current story */
 const WORDS = []; // {id, ch, text}
-STORY.chapters.forEach((c, ci) => c.text.split(/\s+/).forEach(t => { if (t) WORDS.push({ id: WORDS.length, ch: ci, text: t }); }));
-const TOTAL = WORDS.length;
+let TOTAL = 0;
+function setStory(id){
+  STORY = STORIES.find(s => s.id === id) || STORIES[0]; S.story = STORY.id;
+  WORDS.length = 0;
+  STORY.chapters.forEach((c, ci) => c.text.split(/\s+/).forEach(t => { if (t) WORDS.push({ id: WORDS.length, ch: ci, text: t }); }));
+  TOTAL = WORDS.length;
+}
+const fk = (id, story) => (story || S.story) + ":" + id;      // flaggedIds key
+/* migrate a save from before there were multiple stories */
+if (Object.keys(S.flaggedIds).some(k => !k.includes(":")) || S.flagged.some(f => !f.story)){ S.ps = S.ps || {}; S.story = S.story || STORIES[0].id; const ids = {}; Object.keys(S.flaggedIds).forEach(k => { ids[k.includes(":") ? k : fk(k, S.story)] = 1; }); S.flaggedIds = ids; S.flagged.forEach(f => { if (!f.story) f.story = S.story; }); }
+setStory(S.story);
+function switchStory(id){
+  if (id === S.story) return;
+  S.ps[S.story] = { chapter: S.chapter, best: S.best, fluency: S.fluency };
+  const p = S.ps[id] || { chapter: 0, best: null, fluency: {} };
+  S.chapter = p.chapter; S.best = p.best; S.fluency = p.fluency; S.timed = null; S.lastTimed = null; S.pressed = {};
+  setStory(id); S.mode = "read"; save(); render();
+}
 
 function clean(t){ return t.replace(/^[^A-Za-z']+|[^A-Za-z']+$/g,""); }
 function esc(t){ return String(t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
@@ -90,7 +108,7 @@ function updateTop(){
   else { pt.textContent = `${S.flagged.length} / ${MAX}`; pill.style.background = ""; pill.style.color = ""; }
   const pct = S.mode === "read" ? (WORDS.filter(w=>w.ch<S.chapter).length / TOTAL) * 100 : 100;
   document.getElementById("barFill").style.width = pct + "%";
-  document.getElementById("topTitle").textContent = S.mode==="read" ? STORY.title : S.mode==="review" ? (S.qkind === "warm" ? "Quick check" : "Word List") : S.mode === "lesson" ? "Warm-up" : "Dragon Rider Reader";
+  document.getElementById("topTitle").textContent = S.mode==="read" ? STORY.title : S.mode==="review" ? (S.qkind === "warm" ? "Quick check" : "Word List") : S.mode === "lesson" ? "Warm-up" : S.mode === "library" ? "Stories" : "Dragon Rider Reader";
 }
 function render(){
   clearInterval(timerTick);
@@ -100,6 +118,7 @@ function render(){
   else if (S.mode === "done") renderDone();
   else if (S.mode === "grownups") renderGrownups();
   else if (S.mode === "lesson") renderLesson();
+  else if (S.mode === "library") renderLibrary();
   scroll.scrollTop = 0;
 }
 
@@ -112,7 +131,7 @@ function renderRead(){
   const timed = S.timed && S.timed.ch === ci ? S.timed : null;
   const html = paras.map(p => "<p>" + p.split(/\s+/).map(t => {
     const w = WORDS[id++];
-    const fl = S.flaggedIds[w.id] ? " flag" : "";
+    const fl = S.flaggedIds[fk(w.id)] ? " flag" : "";
     const ms = timed && timed.errors[w.id] ? " miss" : "";
     return `<span class="w${fl}${ms}" data-id="${w.id}" tabindex="0">${esc(t)}</span>`;
   }).join(" ") + "</p>").join("");
@@ -190,9 +209,9 @@ function chunkWord(el){
 }
 function flagWord(el){
   const w = WORDS[+el.dataset.id], word = clean(w.text);
-  if (!word || S.flaggedIds[w.id]) return;
-  if (S.flagged.some(f => f.word.toLowerCase() === word.toLowerCase())){ S.flaggedIds[w.id] = 1; el.classList.add("flag"); save(); toast("Already on your list"); return; }
-  S.flaggedIds[w.id] = 1; S.flagged.push({ id: w.id, word });
+  if (!word || S.flaggedIds[fk(w.id)]) return;
+  if (S.flagged.some(f => f.word.toLowerCase() === word.toLowerCase())){ S.flaggedIds[fk(w.id)] = 1; el.classList.add("flag"); save(); toast("Already on your list"); return; }
+  S.flaggedIds[fk(w.id)] = 1; S.flagged.push({ id: w.id, word, story: S.story });
   toughFlag(word); toughPress(word);
   el.classList.add("flag"); el.classList.remove("chunked","spoken"); el.textContent = w.text;
   try{ navigator.vibrate && navigator.vibrate(40); }catch(e){}
@@ -247,7 +266,7 @@ function addMissesToList(r){
     if (S.flagged.length >= MAX) return;
     if (S.flagged.some(f => f.word.toLowerCase() === m.toLowerCase())) return;
     const w = WORDS.find(x => x.ch === r.ch && clean(x.text).toLowerCase() === m.toLowerCase());
-    S.flagged.push({ id: w ? w.id : -1, word: m }); if (w) S.flaggedIds[w.id] = 1; added++;
+    S.flagged.push({ id: w ? w.id : -1, word: m, story: S.story }); if (w) S.flaggedIds[fk(w.id)] = 1; added++;
   });
   toast(added ? `Added ${added} word${added>1?"s":""} to the list` : "Those words are already on the list");
 }
@@ -342,7 +361,7 @@ function answer(right){
       bankMiss(item.w);
       if (item.k === "warm" && S.flagged.length < MAX && !S.flagged.some(f => f.word.toLowerCase() === item.w.toLowerCase())){
         const w = WORDS.find(x => clean(x.text).toLowerCase() === item.w.toLowerCase());
-        S.flagged.push({ id: w ? w.id : -1, word: item.w }); if (w) S.flaggedIds[w.id] = 1;
+        S.flagged.push({ id: w ? w.id : -1, word: item.w, story: S.story }); if (w) S.flaggedIds[fk(w.id)] = 1;
       }
     }
     // the word comes back soon, and again at the end (spaced retrieval)
@@ -378,9 +397,10 @@ function renderDone(){
         <div><b>${learn}</b><span>words nearly there</span></div>
       </div>
       <p class="hint">${praise} The story starts again from the beginning. Can you read even further this time?</p>
-      <button class="btn big" id="again">Read again →</button>
+      <div class="row"><button class="btn big" id="again">Read again →</button><button class="btn ghost" id="library">📚 Pick a story</button></div>
     </div>`;
   document.getElementById("again").onclick = () => { S.mode = "read"; S.chapter = 0; save(); render(); };
+  document.getElementById("library").onclick = () => { S.mode = "library"; save(); render(); };
 }
 
 
@@ -520,6 +540,26 @@ function renderLesson(){
   document.getElementById("quit").onclick = () => { S.mode = "read"; save(); render(); };
 }
 
+/* ---------- LIBRARY ---------- */
+function renderLibrary(){
+  const cards = STORIES.map(st => {
+    const cur = st.id === S.story;
+    const p = cur ? { chapter: S.chapter, best: S.best } : (S.ps[st.id] || { chapter: 0, best: null });
+    const words = st.chapters.reduce((n, c) => n + c.text.split(/\s+/).length, 0);
+    const prog = p.best ? (p.best.finished ? "Finished the whole story!" : `High score: chapter ${p.best.chapter+1}`) : (p.chapter ? `Reading chapter ${p.chapter+1}` : "Not started yet");
+    return `<div class="card storycard${cur ? " current" : ""}">
+      <div class="eyebrow">${st.chapters.length} chapters · about ${Math.round(words/100)*100} words${st.level ? " · " + esc(st.level) : ""}</div>
+      <h2>${esc(st.title)}</h2>
+      <p>${esc(st.blurb || "")}</p>
+      <p class="hint" style="margin-top:6px">${prog}${cur ? " · <b>reading now</b>" : ""}</p>
+      <button class="btn${cur ? " ghost" : ""}" data-id="${st.id}">${cur ? "Keep reading →" : (p.chapter || p.best ? "Continue →" : "Start this one →")}</button>
+    </div>`;
+  }).join("");
+  view.innerHTML = `<div class="libwrap">${cards}<p class="hint" style="text-align:center">Your word list, sticky words and quick checks carry over between stories.</p></div>`;
+  document.querySelectorAll(".storycard button").forEach(b => b.onclick = () => { if (b.dataset.id === S.story){ S.mode = "read"; save(); render(); } else switchStory(b.dataset.id); });
+}
+document.getElementById("libBtn").onclick = () => { S.mode = S.mode === "library" ? "read" : "library"; save(); render(); };
+
 /* ---------- GROWN-UPS ---------- */
 const NORMS = { 2: { fall: 50, winter: 84, spring: 100 }, 3: { fall: 83, winter: 97, spring: 112 } };   // Hasbrouck & Tindal 2017, 50th percentile
 function renderGrownups(){
@@ -600,9 +640,9 @@ function renderGrownups(){
   document.getElementById("export").value = lines.join("\n");
   document.getElementById("back").onclick = () => { S.mode = "read"; save(); render(); };
   document.getElementById("restart").onclick = () => { if (confirm("Go back to chapter 1 and clear the current list?")){ archive(false); S.mode = "read"; save(); render(); } };
-  document.getElementById("wipe").onclick = () => { if (confirm("Erase the high score, ALL saved word lists, and progress?")){ S = FRESH(); save(); render(); } };
-  const rn = document.getElementById("reviewNow"); if (rn) rn.onclick = () => { const last = S.flagged[S.flagged.length-1]; if (last.id >= 0) setHighScore(last.id, false); startReview("list"); };
-  const ul = document.getElementById("undoLast"); if (ul) ul.onclick = () => { const f = S.flagged.pop(); if (f) delete S.flaggedIds[f.id]; save(); render(); };
+  document.getElementById("wipe").onclick = () => { if (confirm("Erase the high score, ALL saved word lists, and progress?")){ S = FRESH(); setStory(S.story); save(); render(); } };
+  const rn = document.getElementById("reviewNow"); if (rn) rn.onclick = () => { const last = S.flagged[S.flagged.length-1]; if (last.id >= 0 && (last.story || S.story) === S.story) setHighScore(last.id, false); startReview("list"); };
+  const ul = document.getElementById("undoLast"); if (ul) ul.onclick = () => { const f = S.flagged.pop(); if (f) delete S.flaggedIds[fk(f.id, f.story)]; save(); render(); };
   document.getElementById("warmNow").onclick = startWarmup;
   document.querySelectorAll(".letgo").forEach(b => b.onclick = () => { const t = S.tough[bankKey(b.dataset.w)]; if (t){ t.sticky = false; t.flags = 0; t.misses = 0; t.streak = 0; t.seen = 0; } save(); render(); });
   document.getElementById("lessonNow").onclick = startLesson;

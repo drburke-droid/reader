@@ -1,4 +1,8 @@
-window.STORY = {
+window.STORIES = window.STORIES || [];
+window.STORIES.push({
+  id: "fourth-wing",
+  blurb: "A kids' retelling of Fourth Wing. A small, clever girl, a war college, and two dragons who choose her.",
+  level: "Grade 2–3, with some big words on purpose",
   title: "Violet and the Dragons",
   chapters: [
     { title: "The Parapet", text: `Violet Sorrengail did not want to be a dragon rider. She wanted to be a scribe and spend her days with books and quiet rooms. But her mother was a famous general, and she said Violet must join the riders at Basgiath War College.
@@ -74,4 +78,4 @@ The battle was won, but it cost a great deal. Violet had learned that the world 
 
 And this was only the beginning.` }
   ]
-};
+});

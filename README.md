@@ -12,6 +12,7 @@ A tap-to-read e-reader for a beginning reader. Plain HTML/CSS/JS — no build st
 - **Sticky words**: a word that lands on her list twice, or that she misses twice in practice, keeps coming back in every practice session. It is released only after two clean sessions and three reads past it in the story without tapping or holding it. Parents can release one manually.
 - Passed words go into a **word bank** and are re-checked in short **quick checks** after 1, 3, 10 and 30 days. Four checks in a row = a word she "owns".
 - **Timed read** (from the Grown-ups page): a parent starts the timer, taps words she misses while she reads a chapter aloud, and gets correct-words-per-minute with history per chapter. Misses can be added to the list.
+- 📚 **Stories**: a library with several kids' retellings (currently *Fourth Wing* and *Dungeon Crawler Carl*). Progress and high scores are per story; word lists and sticky words carry across.
 - Tapping **I finished!** on the last chapter counts as beating the story.
 - ⚙️ **Grown-ups** page: stats, current list, owned words, quick check now, warm-up lesson, timed reads and norms, a "how to help when she's stuck" script, settings, saved lists, text export, restart / erase.
 
@@ -27,7 +28,7 @@ Progress and word lists are saved in the browser (`localStorage`) on each device
 | `styles.css` | All styling; light & dark themes via CSS variables |
 | `app.js` | Reader, word list, practice queue, warm-ups, timed reads, grown-ups panel, storage |
 | `phonics.js` | Word analysis: grapheme tokenizer, affix peeling, syllable division, heart-word table |
-| `stories/fourth-wing.js` | The story (kids' retelling of *Fourth Wing*) — `window.STORY = { title, chapters: [{ title, text }] }` |
+| `stories/*.js` | The stories (kids' retellings of *Fourth Wing* and *Dungeon Crawler Carl*) — each pushes `{ id, title, blurb, level, chapters: [{ title, text }] }` onto `window.STORIES` |
 | `manifest.json`, `icon.svg` | Home-screen / PWA metadata |
 | `.nojekyll` | Tells GitHub Pages to serve files as-is |
 
@@ -51,12 +52,11 @@ The site is served at `https://drburke-droid.github.io/reader/` within a minute 
 
 ## Adding a story
 
-1. Copy `stories/fourth-wing.js` to `stories/<name>.js` and replace the text. Separate paragraphs with a blank line.
-2. Point `index.html` at the new file (or build a story picker — see `CLAUDE.md` for ideas).
+1. Copy `stories/dungeon-crawler-carl.js` to `stories/<name>.js`, give it a new `id`, and replace the text. Separate paragraphs with a blank line. End chapters on a hook.
+2. Add a `<script src="stories/<name>.js">` line to `index.html` next to the others. It appears in the 📚 library automatically.
 
 ## Ideas / to-do
 
-- Story picker with several stories at different levels
 - Per-story high scores
 - Sync word lists between devices (e.g. export/import a code, or a tiny backend)
 - Bigger exception dictionary for the syllable splitter (`SPLITS` / `CLOSED_FIRST` in `phonics.js`)

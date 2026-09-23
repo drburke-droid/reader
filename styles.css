@@ -171,3 +171,12 @@ textarea{width:100%;font:inherit;font-size:.85rem;border-radius:12px;border:2px 
 .demo{padding-top:.7em}
 .stickyrow{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .stickyrow b{font-size:1.05rem}
+
+/* library */
+#libBtn{font-size:1.3rem}
+.libwrap{display:flex;flex-direction:column;gap:14px}
+.storycard h2{font-size:1.5rem;color:var(--ember);margin:4px 0 6px}
+.storycard p{font-size:1.05rem;line-height:1.5;margin:0}
+.storycard .btn{margin-top:12px}
+.storycard.current{border:3px solid var(--gold)}
+.top .iconbtn{width:40px}
