@@ -6,7 +6,6 @@ const MAX = 20;
 const KEY = "dragonReader.v2";
 const DAY = 864e5;
 const GAPS = [1, 3, 10, 30, 90];              // days between spaced checks, per stage (stage 4+ = mastered)
-const AUDIO_DELAY = 2500;                     // ms: she tries the word first, then hears it
 
 const FRESH = () => ({
   chapter: 0, flagged: [], flaggedIds: {},   // flagged: [{id, word}]
@@ -94,7 +93,7 @@ function updateTop(){
   document.getElementById("topTitle").textContent = S.mode==="read" ? STORY.title : S.mode==="review" ? (S.qkind === "warm" ? "Quick check" : "Word List") : S.mode === "lesson" ? "Warm-up" : "Dragon Rider Reader";
 }
 function render(){
-  clearInterval(timerTick); clearTimeout(speakTimer);
+  clearInterval(timerTick);
   updateTop();
   if (S.mode === "read") renderRead();
   else if (S.mode === "review") renderReview();
@@ -137,7 +136,7 @@ function renderRead(){
         <button class="btn ghost" id="prev" ${ci===0?"disabled":""}>← Back</button>
         ${ci < STORY.chapters.length-1 ? `<button class="btn" id="next">Next chapter →</button>` : `<button class="btn big" id="finish">🎉 I finished!</button>`}
       </div>
-      <p class="hint">${timed ? "<b>Timed read.</b> Tap any word she gets wrong. Tap Stop when she reaches the end." : `<b>Tap</b> a word to break it into pieces. Try to read it, then tap again to hear it. <b>Press and hold</b> a tricky word to add it to your list. ${bestLine}`}</p>
+      <p class="hint">${timed ? "<b>Timed read.</b> Tap any word she gets wrong. Tap Stop when she reaches the end." : `<b>Tap</b> a word to break it into pieces. Try to read it. Tap it again if you want to hear it. <b>Press and hold</b> a tricky word to add it to your list. ${bestLine}`}</p>
     </div>`;
   const p = document.getElementById("prev"), n = document.getElementById("next"), f = document.getElementById("finish");
   if (p) p.onclick = () => { S.pressed = {}; S.chapter--; save(); render(); };
@@ -154,7 +153,7 @@ function renderRead(){
   bindWords(!!timed);
 }
 
-let pressTimer = null, pressed = null, longFired = false, speakTimer = null;
+let pressTimer = null, pressed = null, longFired = false;
 function bindWords(timing){
   const text = document.getElementById("text");
   text.addEventListener("contextmenu", e => e.preventDefault());
@@ -176,19 +175,18 @@ function bindWords(timing){
   text.addEventListener("keydown", e => { const el = e.target.closest(".w"); if (!el) return; if (e.key === "Enter" || e.key === " "){ e.preventDefault(); chunkWord(el); } if (e.key.toLowerCase() === "x") flagWord(el); });
 }
 function chunkHTML(t, opts){ return t.split("-").map(part => PH.html(part, opts)).join("<span class=\"c\">-</span>"); }
-function unchunkAll(){ document.querySelectorAll(".w.chunked").forEach(o => { o.classList.remove("chunked","spoken"); o.textContent = WORDS[+o.dataset.id].text; }); clearTimeout(speakTimer); }
-/* Tap 1: split into chunks (she tries it). Tap 2 (or ~2.5 s): hear it. Tap 3: close. */
+function unchunkAll(){ document.querySelectorAll(".w.chunked").forEach(o => { o.classList.remove("chunked","spoken"); o.textContent = WORDS[+o.dataset.id].text; }); }
+/* Tap 1: the word grows and splits into chunks (she tries it). Tap 2: hear it. Tap 3: close. No audio unless she asks. */
 function chunkWord(el){
   const w = WORDS[+el.dataset.id], word = clean(w.text);
   if (el.classList.contains("chunked")){
-    if (el.classList.contains("spoken") || !S.opts.delay){ el.classList.remove("chunked","spoken"); el.textContent = w.text; clearTimeout(speakTimer); return; }
-    clearTimeout(speakTimer); el.classList.add("spoken"); speak(word); return;
+    if (el.classList.contains("spoken") || !S.opts.delay){ el.classList.remove("chunked","spoken"); el.textContent = w.text; return; }
+    el.classList.add("spoken"); speak(word); return;
   }
   unchunkAll();
   toughPress(word);
   el.classList.add("chunked"); el.innerHTML = chunkHTML(w.text);
-  if (S.opts.delay){ speakTimer = setTimeout(() => { if (el.classList.contains("chunked")){ el.classList.add("spoken"); speak(word); } }, AUDIO_DELAY); }
-  else { el.classList.add("spoken"); speak(word); }
+  if (!S.opts.delay){ el.classList.add("spoken"); speak(word); }
 }
 function flagWord(el){
   const w = WORDS[+el.dataset.id], word = clean(w.text);
@@ -535,7 +533,7 @@ function renderGrownups(){
   view.innerHTML = `
     <div class="card gu">
       <h2>Grown-ups</h2>
-      <p>How it works: a <b>tap</b> splits a word into chunks so she can try it; a second tap (or a couple of seconds) reads it aloud. A <b>press-and-hold</b> marks a tough word. At ${MAX} tough words her spot becomes her high score and she practises the list with hints, hears each word, then marks it herself. Missed words come back later in the same session instead of restarting the list. Words she passes get re-checked in short <b>quick checks</b> after 1, 3, 10 and 30 days; four checks in a row and she "owns" the word. The <b>warm-up lesson</b> (🔥) teaches the four tricks the hints use: find the vowels, vowels have two sounds, try it both ways, heart words. Run it before reading until the tricks are automatic.</p>
+      <p>How it works: a <b>tap</b> splits a word into chunks so she can try it; a second tap reads it aloud; nothing is spoken until she asks. A <b>press-and-hold</b> marks a tough word. At ${MAX} tough words her spot becomes her high score and she practises the list with hints, hears each word, then marks it herself. Missed words come back later in the same session instead of restarting the list. Words she passes get re-checked in short <b>quick checks</b> after 1, 3, 10 and 30 days; four checks in a row and she "owns" the word. The <b>warm-up lesson</b> (🔥) teaches the four tricks the hints use: find the vowels, vowels have two sounds, try it both ways, heart words. Run it before reading until the tricks are automatic.</p>
       <div class="stat">
         <div><b>${b ? (b.finished ? "Done!" : "Ch. " + (b.chapter+1)) : "—"}</b><span>High score${b ? " · " + b.pct + "% of story" : ""}</span></div>
         <div><b>${own.length}</b><span>Words owned</span></div>
@@ -579,7 +577,7 @@ function renderGrownups(){
       <p>Praise the strategy, not the child: "You looked at every letter" beats "you're so smart". No prizes for reading; the count of words she owns is the reward. Two quick checks you can do at home: can she read made-up words like <i>blim</i> or <i>trange</i>? Does she substitute look-alike words (<i>was/saw</i>, <i>then/when</i>)? If both are shaky, the word list and warm-ups here are exactly the right practice, and it is worth asking her teacher for a phonics check.</p>
 
       <h3>Settings</h3>
-      <label class="opt"><input type="checkbox" id="optDelay" ${S.opts.delay ? "checked" : ""}> Wait a couple of seconds before reading a tapped word aloud (so she tries it first)</label>
+      <label class="opt"><input type="checkbox" id="optDelay" ${S.opts.delay ? "checked" : ""}> Only read a tapped word aloud when she taps it a second time (so she tries it first)</label>
       <label class="opt"><input type="checkbox" id="optKnown" ${S.opts.known ? "checked" : ""}> Mix words she already knows into the practice list (keeps success high)</label>
 
       <h3>Saved word lists</h3>

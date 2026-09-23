@@ -42,7 +42,7 @@ h1,h2,h3{font-family:Fredoka,Andika,sans-serif;font-weight:700;line-height:1.15;
 .w{display:inline-block;border-radius:8px;padding:0 3px;margin:0 -3px;transition:background .15s,transform .15s;cursor:pointer}
 .w.pressing{background:var(--ember-soft);transform:scale(1.06)}
 .w.flag{background:var(--flag);color:var(--flag-ink);font-weight:700}
-.w.chunked{font-weight:700;letter-spacing:.02em}
+.w.chunked{font-weight:700;letter-spacing:.02em;transform:scale(1.18);transform-origin:center;background:var(--paper);box-shadow:var(--shadow);padding:2px 8px;margin:0 2px;position:relative;z-index:2}
 .w.chunked .c{padding:0 1px}
 .c1{color:var(--ember)}.c2{color:var(--sky)}.c3{color:var(--leaf)}.c4{color:var(--plum)}
 .nav{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:16px;flex-wrap:wrap}

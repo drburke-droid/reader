@@ -4,7 +4,7 @@ A tap-to-read e-reader for a beginning reader. Plain HTML/CSS/JS — no build st
 
 ## How it works
 
-- **Tap** a word → it splits into syllable chunks with the vowels underlined, silent *e* dimmed and a ♥ over the part of an irregular word you learn by heart. She tries it first; a second tap (or ~2.5 s) reads it aloud.
+- **Tap** a word → it splits into syllable chunks with the vowels underlined, silent *e* dimmed and a ♥ over the part of an irregular word you learn by heart. The word grows so she can see it. She tries it first; nothing is spoken until she taps it a second time.
 - **Press and hold** a word → it's marked as a tough word and added to the word list.
 - At **20 words**, her spot in the story is saved as her **high score** and she goes to the Word List.
 - Word List: each word shown big. A **Hint** ladder walks the decoding script (first sound → check the vowel → cover the ending → try the other vowel sound). She reads it, taps *Hear it* to check, then marks ✓ / ✗. A miss brings the word back a few items later and again at the end; words she already knows are mixed in to keep success high. Clear the queue → back to chapter 1 to beat the high score.
