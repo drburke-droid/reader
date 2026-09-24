@@ -4,7 +4,7 @@
 E-reader web app for an 8-year-old who is learning to read. Built by her dad. Keep everything **kid-first**: big type, big touch targets, forgiving interactions, encouraging copy, nothing that requires typing.
 
 ## Stack & constraints
-- Static site: `index.html` + `styles.css` + `phonics.js` + `app.js` + `stories/*.js` (each story file pushes onto `window.STORIES`; add a `<script>` tag in `index.html` for a new one). Bump the `?v=` query on the script/style tags in `index.html` when shipping so GitHub Pages caches refresh (currently v=8). **No build step, no framework, no npm.** It must keep working by opening `index.html` or from GitHub Pages at a sub-path (use relative URLs only).
+- Static site: `index.html` + `styles.css` + `phonics.js` + `app.js` + `stories/*.js` (each story file pushes onto `window.STORIES`; add a `<script>` tag in `index.html` for a new one). Bump the `?v=` query on the script/style tags in `index.html` when shipping so GitHub Pages caches refresh (currently v=10). **No build step, no framework, no npm.** It must keep working by opening `index.html` or from GitHub Pages at a sub-path (use relative URLs only).
 - Fonts: Andika (body — designed for beginning readers) and Fredoka (headings) from Google Fonts, with system fallbacks.
 - Persistence: `localStorage` under key `dragonReader.v2` (see `S` in `app.js`). Every read/write is wrapped in try/catch. If the saved shape changes incompatibly, bump the key version rather than migrating.
 - Theming: all colours are CSS variables on `:root`, redefined for dark mode. Never hard-code a colour in a component rule.

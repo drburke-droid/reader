@@ -69,7 +69,7 @@ window.PH = (function(){
    "sun|shine sun|light moon|light day|light fire|place foot|ball base|ball bas|ket|ball sea|side rain|bow snow|man snow|flake " +
    "air|plane air|port pan|cake cup|cake door|way hall|way high|way rail|road note|book back|pack back|yard up|stairs down|stairs " +
    "in|deed in|stead per|haps ex|cept be|yond an|oth|er with|out un|der|stand un|der|neath o|ver|head war|ri|or fam|i|ly " +
-   "beau|ti|ful an|i|mal gen|er|al en|e|my en|e|mies li|brar|y mys|ter|y mys|te|ri|ous ex|per|i|ment ma|chine strong|est long|est young|est strong|er long|er a|chieve a|chieve|ment fire|works fire|work laugh|ter au|di|ence dif|fer|ent dun|geon gor|geous mil|lion mil|lions bil|lion bil|lions re|bel|lion on|ion un|ion o|pin|ion skel|e|ton tel|e|vi|sion ri|dic|u|lous a|dor|a|ble")
+   "beau|ti|ful an|i|mal gen|er|al en|e|my en|e|mies li|brar|y mys|ter|y mys|te|ri|ous ex|per|i|ment ma|chine strong|est long|est young|est strong|er long|er a|chieve a|chieve|ment fire|works fire|work laugh|ter au|di|ence dif|fer|ent dun|geon gor|geous mil|lion mil|lions bil|lion bil|lions re|bel|lion on|ion un|ion o|pin|ion skel|e|ton tel|e|vi|sion ri|dic|u|lous a|dor|a|ble horse|back fire|light mur|der|er mur|der|ers clev|er|est pris|on pris|on|er pris|on|ers gov|er|nor pun|ish|ment teen|ag|er teen|ag|ers nine|teen slaugh|ter swords|man")
    .split(" ").forEach(s => { SPLITS[s.replace(/\|/g,"")] = s.split("|"); });
 
   /* two-syllable words where the single middle consonant stays with the first (closed) syllable */
