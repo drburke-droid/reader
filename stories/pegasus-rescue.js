@@ -41,11 +41,11 @@ Isla packed Minee and Daycare in her backpack with the zipper open a crack. The 
 
 Then Isla turned into aisle nine, and she stopped.
 
-Lying on the bottom shelf was a Pegasus. He was white and shaggy and super soft. He had a rainbow mane, pink and yellow and green and blue. His wings sparkled with rainbow glitter, and so did his hooves. His big blue eyes had tiny stars in them.
+Lying on the bottom shelf was a Pegasus. She was white and shaggy and super soft. She had a rainbow mane, pink and yellow and green and blue. Her wings sparkled with rainbow glitter, and so did her hooves. Her big blue eyes had tiny stars in them.
 
-And he was huge. When Isla lay down next to him, they were exactly the same size.
+And she was huge. When Isla lay down next to her, they were exactly the same size.
 
-"Mom," Isla whispered. "Can we get him?"
+"Mom," Isla whispered. "Can we get her?"
 
 Mom looked at the price tag. She made the face she makes when Dad says he fixed the dishwasher himself.
 
@@ -53,9 +53,9 @@ Mom looked at the price tag. She made the face she makes when Dad says he fixed 
 
 Everybody knows what that means. In grown-up language, it means no, and also please stop asking.
 
-Isla felt a tiny tug on her sleeve. The Pegasus had leaned his big head down.
+Isla felt a tiny tug on her sleeve. The Pegasus had leaned her big head down.
 
-"My name is Peggy," he whispered. "And I need help. Two men came in today pretending to shop. One of them was wearing sunglasses. Inside. I heard them talking. On Friday night they are going to sneak in and steal every toy that's left. They want to sell us at the flea market for a dollar each."
+"My name is Peggy," she whispered. "And I need help. Two men came in today pretending to shop. One of them was wearing sunglasses. Inside. I heard them talking. On Friday night they are going to sneak in and steal every toy that's left. They want to sell us at the flea market for a dollar each."
 
 "A dollar!" gasped Isla.
 
@@ -65,9 +65,9 @@ Inside the backpack, Minee's chipped red eye began to glow.
 
 "Nobody calls our horse tacky," he growled.
 
-"He is not our horse," said Daycare.
+"She is not our horse," said Daycare.
 
-"He is now," said Minee.` },
+"She is now," said Minee.` },
 
     { title: "Operation Big Fluffy", text: `That night, as soon as Mom and Dad were snoring, the team met inside the blanket fort.
 
@@ -77,7 +77,7 @@ Minee drew the plan in crayon on a cereal box. He drew very badly, because he wa
 
 "And step three?" asked Isla.
 
-Minee grinned. "Saturday morning, you tell Dad you left me at Toys R Us. He has had me for forty-four years. He will drive through a brick wall to get me back. And when he finds me, I'll be sitting on Peggy with a sign that says BUY HIM."
+Minee grinned. "Saturday morning, you tell Dad you left me at Toys R Us. He has had me for forty-four years. He will drive through a brick wall to get me back. And when he finds me, I'll be sitting on Peggy with a sign that says BUY HER."
 
 Isla gasped. It was brilliant.
 
@@ -99,7 +99,7 @@ Daycare raised one feathery eyebrow. "What could possibly go wrong?"
 
 "You still smell a little bit like it," said Daycare.
 
-Then Isla held up one finger. "One more rule. We are not stealing Peggy. Stealing is wrong. We are going to buy him."
+Then Isla held up one finger. "One more rule. We are not stealing Peggy. Stealing is wrong. We are going to buy her."
 
 She shook her piggy bank. Out rolled eleven dollars, forty cents, a button, and a very old gummy bear. The gummy bear had fuzz on it.
 
@@ -131,7 +131,7 @@ They poured six jars of green slime just inside the back door. They covered the 
 
 They filled forty water balloons. They lined up twenty toy robots with their fingers on the button. They hid a whoopee cushion under every single mat in the store.
 
-Peggy did not have hands, so he held the flashlight in his teeth and gave helpful advice, like "ooh" and "is that legal?"
+Peggy did not have hands, so she held the flashlight in her teeth and gave helpful advice, like "ooh" and "is that legal?"
 
 By midnight, Minee stood on a shelf with his arms crossed, looking down at the dark store like a tiny, fuzzy general.
 
@@ -209,7 +209,7 @@ Glitter never comes off. Scientists say those two men will still be finding glit
 
 Gordo spat out a mouthful of pink sparkles. "Forget the rest of the toys," he growled. "We grab the horse and we get out of here."
 
-He grabbed Peggy by one rainbow wing and threw him over his shoulder.
+He grabbed Peggy by one rainbow wing and threw her over his shoulder.
 
 Then Skeeter reached up to the shelf and grabbed a certain raggedy koala by the shirt. Riiiip went the teal shirt, right down the side.
 
@@ -237,7 +237,7 @@ Skeeter screamed so high that dogs three blocks away sat up in bed. He spun in c
 
 "Peggy!" yelled Minee. "Now!"
 
-Peggy could not fly. His wings were full of fluff. But his back legs were very, very strong. He kicked with both rainbow hooves at once, right in the seat of Gordo's pants.
+Peggy could not fly. Her wings were full of fluff. But her back legs were very, very strong. She kicked with both rainbow hooves at once, right in the seat of Gordo's pants.
 
 WHUMP!
 
@@ -277,9 +277,9 @@ Just then, the night guard showed up, holding a coffee. He looked at the slime a
 
 Isla grabbed Dad's hand and pulled him to aisle nine.
 
-There lay Peggy, a little damp, with his rainbow mane sticking straight up. On his back sat a raggedy old koala with a chipped red eye and a ripped teal shirt. Next to the koala sat a snowy white owl.
+There lay Peggy, a little damp, with her rainbow mane sticking straight up. On her back sat a raggedy old koala with a chipped red eye and a ripped teal shirt. Next to the koala sat a snowy white owl.
 
-Minee was holding a crayon sign. It said: BUY HIM.
+Minee was holding a crayon sign. It said: BUY HER.
 
 Dad looked at Minee for a long moment. Minee looked back at Dad. Dad had known that koala for forty-four years. He knew that face.
 
@@ -291,9 +291,9 @@ The manager counted it very seriously. Then she looked at Dad. Dad pulled out hi
 
 "You know," said the manager, "this is the very last thing this store will ever sell."
 
-Isla tried to carry Peggy to the car. He was as big as she was, so mostly she hugged him around the middle and walked backward while Dad, still wearing Mom's pink bathrobe, carried his tail. People stared. Dad waved.
+Isla tried to carry Peggy to the car. She was as big as Isla was, so mostly Isla hugged her around the middle and walked backward while Dad, still wearing Mom's pink bathrobe, carried her tail. People stared. Dad waved.
 
-They buckled Peggy into the back seat with his own seatbelt.
+They buckled Peggy into the back seat with her own seatbelt.
 
 That night, Dad got out his old sewing kit. He sat on Isla's bed and looked at the big rip in Minee's shirt.
 
@@ -303,7 +303,7 @@ He sewed it up very carefully with blue thread, in big crisscross stitches. Thos
 
 Minee said nothing. Stuffies never talk when grown-ups are awake. But his chipped eye looked a tiny bit proud.
 
-Peggy got the spot on the bed right by the pillow. Isla fell asleep holding his rainbow hoof.
+Peggy got the spot on the bed right by the pillow. Isla fell asleep holding her rainbow hoof.
 
 Much later that night, Minee crept off the bed and headed for the door. He had one more idea about the umbrella and the bunk bed, and this time he was sure it would work.
 
