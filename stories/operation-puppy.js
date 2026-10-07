@@ -15,7 +15,7 @@ Mom put down her fork. She counted on her fingers.
 
 "Dogs poop," she said. "Dogs shed. Dogs chew shoes. Dogs bark at nothing. And dogs lick their own bottoms right in front of company."
 
-"To be fair," said Dad, "so did my Uncle Ron at Thanksgiving."
+"To be fair," said Dad, "so did my Uncle Trevor at Thanksgiving."
 
 "He did not lick it," said Mom. "He scratched it. With a fork."
 
@@ -179,17 +179,17 @@ In the morning, Mom found Minee sitting on the couch, tangled in balloon strings
 
 Dad was staring into his coffee. "I'm not going to talk about last night," he said. "Not ever. Not to anyone."` },
 
-    { title: "Uncle Ron", text: `On Saturday afternoon, the house filled up with grown-ups.
+    { title: "Uncle Trevor", text: `On Saturday afternoon, the house filled up with grown-ups.
 
-There was Grandma, who pinched everybody's cheeks, even the mailman's. There was Mom's boss, Mrs. Pickering, who wore white pants and a tall hat and never smiled. She had brought her tiny dog, Duchess, who wore a sweater with pearls on it and had a face like a squished raisin.
+There was Nana, who pinched everybody's cheeks, even the mailman's. There was Mom's boss, Mrs. Pickering, who wore white pants and a tall hat and never smiled. She had brought her tiny dog, Duchess, who wore a sweater with pearls on it and had a face like a squished raisin.
 
-And there was Uncle Ron.
+And there was Uncle Trevor.
 
-Uncle Ron was Dad's uncle. He was very big and very loud, and he had the most famous tummy in the whole family. Uncle Ron's tummy made noises. Bubbly noises. Grumbly noises. And sometimes, noises that came out of the back.
+Uncle Trevor was Dad's uncle. He was very big and very loud, and he had the most famous tummy in the whole family. Uncle Trevor's tummy made noises. Bubbly noises. Grumbly noises. And sometimes, noises that came out of the back.
 
-"Ron," whispered Grandma. "Did you eat the bean dip again?"
+"Trevor," whispered Nana. "Did you eat the bean dip again?"
 
-"I ate ALL the bean dip," said Uncle Ron proudly.
+"I ate ALL the bean dip," said Uncle Trevor proudly.
 
 Every grown-up in the room took one big step backward.
 
@@ -209,21 +209,21 @@ Minee would be riding on Penny's back, to steer.
 
 Penny was shaking so hard she sounded like a tambourine. "I want it on the record," she whispered, "that I am not being paid for this."
 
-Down below, Uncle Ron sat on the couch. The couch made a sad noise. Then Uncle Ron made a different noise, and it was not the couch.
+Down below, Uncle Trevor sat on the couch. The couch made a sad noise. Then Uncle Trevor made a different noise, and it was not the couch.
 
 Duchess the tiny dog ran and hid behind the curtains.
 
-"Ron!" said Grandma.
+"Trevor!" said Nana.
 
-"That was the couch," said Uncle Ron.
+"That was the couch," said Uncle Trevor.
 
 Nobody believed him. The couch did not believe him either.` },
 
     { title: "Liftoff", text: `Mom carried in the birthday cake. It was covered in candles. So many candles that it looked like a small forest fire.
 
-"Make a wish!" said Grandma.
+"Make a wish!" said Nana.
 
-Dad took a deep breath and blew. Some of the candles went out. Some of them did not. Uncle Ron leaned in to help, and blew so hard that frosting splattered on Mrs. Pickering's white pants.
+Dad took a deep breath and blew. Some of the candles went out. Some of them did not. Uncle Trevor leaned in to help, and blew so hard that frosting splattered on Mrs. Pickering's white pants.
 
 Mrs. Pickering looked down at her pants. She did not say anything. She did not have to. Her eyebrows said everything.
 
@@ -237,7 +237,7 @@ Every grown-up turned around.
 
 And there it was. A pig, flying slowly across the living room, under fifty shiny balloons that all said OVER THE HILL. Riding on top was a koala, frozen like a tiny, fuzzy statue.
 
-Nobody said anything. Grandma dropped her plate. Mrs. Pickering's mouth fell open. Duchess fainted.
+Nobody said anything. Nana dropped her plate. Mrs. Pickering's mouth fell open. Duchess fainted.
 
 "Is that," said Mom slowly, "a pig?"
 
@@ -245,15 +245,15 @@ Nobody said anything. Grandma dropped her plate. Mrs. Pickering's mouth fell ope
 
 The pig floated over the cake. It floated over the punch bowl. It floated past Dad, who looked at Minee and said, very softly, "Not again."
 
-Then it drifted right toward the couch, right toward Uncle Ron.
+Then it drifted right toward the couch, right toward Uncle Trevor.
 
 "Oh no," whispered Daycare.
 
-Uncle Ron was so surprised by the flying pig that he did something he had been trying very hard not to do all afternoon.
+Uncle Trevor was so surprised by the flying pig that he did something he had been trying very hard not to do all afternoon.
 
 He let one go.
 
-It was the biggest, longest, loudest one in family history. It sounded like a tuba falling down the stairs. It lasted so long that Grandma checked her watch.
+It was the biggest, longest, loudest one in family history. It sounded like a tuba falling down the stairs. It lasted so long that Nana checked her watch.
 
 And it came out with so much power that the warm wind blew the balloons straight up, much faster, toward the ceiling fan.
 
@@ -261,7 +261,7 @@ The ceiling fan was on high.` },
 
     { title: "The Great Pop", text: `POP. POP. POP POP POP POP POP.
 
-The ceiling fan chopped through the balloons like a blender. Pieces of OVER THE HILL rained down on everybody. Grandma screamed. Duchess woke up, saw the balloons popping, and fainted again.
+The ceiling fan chopped through the balloons like a blender. Pieces of OVER THE HILL rained down on everybody. Nana screamed. Duchess woke up, saw the balloons popping, and fainted again.
 
 And Penny the piggy bank, with a frozen koala on her back, started to fall.
 
@@ -283,13 +283,13 @@ Isla had given them to him for Father's Day.
 
 There was a long, terrible silence.
 
-"Well," said Grandma. "It's true."
+"Well," said Nana. "It's true."
 
 Mrs. Pickering made a sound. At first, everyone thought she was choking. Then they realized she was laughing. She laughed so hard she snorted, which made her laugh harder, which made her snort again. She had to sit down. She sat in the cake.
 
 That was the end of the white pants.
 
-Uncle Ron was laughing so hard his tummy started making noises again, which made everyone else laugh harder, which made his tummy even louder. Mom had tears running down her face. Dad was lying on the floor holding a piggy bank and a koala, with his heart underwear in the air, laughing like he had forgotten how to stop.
+Uncle Trevor was laughing so hard his tummy started making noises again, which made everyone else laugh harder, which made his tummy even louder. Mom had tears running down her face. Dad was lying on the floor holding a piggy bank and a koala, with his heart underwear in the air, laughing like he had forgotten how to stop.
 
 Up on the bookshelf, Daycare covered his eyes with both wings.
 
@@ -307,11 +307,11 @@ Isla was standing in the middle of the room with her hands on her hips.
 
 "Honey, that was not really," Mom began.
 
-"I saw it fly," said Grandma.
+"I saw it fly," said Nana.
 
 "I saw it fly too," said Mrs. Pickering, who was still sitting in the cake.
 
-"It definitely flew," said Uncle Ron. "I helped."
+"It definitely flew," said Uncle Trevor. "I helped."
 
 "You did help," said Dad from the floor. "Nobody will ever forget how you helped."
 
@@ -329,7 +329,7 @@ Much later that night, when the party was over and the grown-ups were snoring, t
 
 "Well," said Minee, lying back with his arms behind his head. "I'd say that went exactly as planned."
 
-"Nothing went as planned," said Daycare. "Not one single thing. The balloons popped. You fell. Dad split his pants. Uncle Ron almost blew a hole in the wall."
+"Nothing went as planned," said Daycare. "Not one single thing. The balloons popped. You fell. Dad split his pants. Uncle Trevor almost blew a hole in the wall."
 
 "And yet," said Minee, "we're getting a puppy."
 
